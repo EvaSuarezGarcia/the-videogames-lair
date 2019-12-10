@@ -1,4 +1,4 @@
----- Final preproc tables for GB metadata ----
+-- Final preproc tables for GB metadata --
 -- Drop tables
 DROP TABLE game_steam_ids;
 DROP TABLE game_aliases;

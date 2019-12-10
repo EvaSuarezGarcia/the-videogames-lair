@@ -1,8 +1,7 @@
-import logging, log_config
 import requests
 import re
 import time
-from config import api_key
+from config import gb_api_key
 
 class GbApi(object):
 
@@ -12,14 +11,14 @@ class GbApi(object):
     def limit_rate(self):
         now = time.time()
         elapsed = now - self.last_request
-        if elapsed < 1:
-            time.sleep(1 - elapsed)
-        self.last_request = now        
+        if elapsed < 5:
+            time.sleep(5 - elapsed)
+        self.last_request = time.time()        
 
     def search(self, query, resources=["game"], field_list=None):
         search_url = 'https://www.giantbomb.com/api/search/'
         params = {
-            "api_key": api_key,
+            "api_key": gb_api_key,
             "format": "json",
             "query": query
         }
@@ -42,7 +41,7 @@ class GbApi(object):
     def get_game_and_related_elements(self, id, field_list=None):
         game_url = 'https://www.giantbomb.com/api/game/3030-' + str(id)
         params = {
-            "api_key": api_key,
+            "api_key": gb_api_key,
             "format": "json"
         }
 

@@ -3,7 +3,15 @@ import pymysql
 import gb_api
 import db_utils
 import difflib
+import re
 from config import mysql
+
+def clean_name(name):
+    name = name.lower()
+    name = re.sub("( :|\.|'|,)", "", name)
+    name = re.sub("(: | - )", " ", name)
+    name = name.replace("&", "and")
+    return name.strip()
 
 def longest_common_substring(s1, s2):
     matcher = difflib.SequenceMatcher(None, s1, s2)
@@ -59,7 +67,7 @@ if __name__ == "__main__":
 
         with connection.cursor() as cursor:
             # Get all steam games not found in GB
-            sql = "SELECT steam_id, game_name FROM steam_games WHERE steam_id NOT IN "\
+            sql = "SELECT steam_id, game_name FROM all_steam_games_2 WHERE steam_id NOT IN "\
                 "(SELECT steam_id FROM game_steam_ids)"
             cursor.execute(sql)
             rows = cursor.fetchall()
@@ -67,7 +75,8 @@ if __name__ == "__main__":
 
             for row in rows:
                 steam_id = row[0]
-                game_name = row[1].lower().replace(':', '').strip()
+                #game_name = row[1].lower().replace(' :', '').replace(':', '').replace('&', 'and').strip()
+                game_name = clean_name(row[1])
                 # Search this game's name in GB
                 results = gb.search(game_name, field_list=["id", "aliases", "name"])
                 matching_games = []
@@ -76,7 +85,8 @@ if __name__ == "__main__":
 
                 # Iterate over results
                 for result in results:
-                    result_name = result['name'].lower().replace(':', '').strip() if result['name'] else ''
+                    #result_name = result['name'].lower().replace(' :', '').replace(':', '').replace('&', 'and').strip() if result['name'] else ''
+                    result_name = clean_name(result['name'])
                     aliases_tmp = gb.split_aliases(result['aliases']) if result['aliases'] else []
                     aliases = []
                     for alias in aliases_tmp:
@@ -131,7 +141,7 @@ if __name__ == "__main__":
                     not_found_games += 1
 
         if not_found_games > 0:
-            logger.warning('NUMBER OF NOT FOUND GAMES: ' + not_found_games)
+            logger.warning('NUMBER OF NOT FOUND GAMES: ' + str(not_found_games))
 
     finally:
         connection.close()
