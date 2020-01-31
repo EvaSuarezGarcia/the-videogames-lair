@@ -7,7 +7,9 @@ DROP ROLE cassandra;
 
 -- Create keyspace
 CREATE KEYSPACE videogames_lair
-WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'salita' : 3 };
+
+USE videogames_lair;
 
 -- Create user ratings table
 CREATE TABLE ratings (

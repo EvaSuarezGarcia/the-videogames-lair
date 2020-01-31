@@ -1,21 +1,23 @@
 import pymysql
 import sys
+
+from cassandra import ConsistencyLevel
+from cassandra.query import BatchStatement
+
 from config import mysql, cassandra_conf
 from cassandra.cluster import Cluster
-from cassandra.policies import RetryPolicy
 from cassandra.auth import PlainTextAuthProvider
 from batch_operation_utils import read_next_batch_data, write_info
 
 def write_batch_to_cassandra(rows):
-    #batch = BatchStatement(consistency_level=ConsistencyLevel.QUORUM)
+    batch = BatchStatement(consistency_level=ConsistencyLevel.QUORUM)
     for row in rows:
-        #batch.add(insert_stmt, (row["game_id"], row["user_id"], row["rating"], bool(row["estimated"])))
-        session.execute(insert_cql, (row["game_id"], row["user_id"], row["rating"], bool(row["estimated"])))
-    #session.execute(batch)
+        batch.add(insert_stmt, (row["game_id"], row["user_id"], row["rating"], bool(row["estimated"])))
+    session.execute(batch, timeout=60.0)
 
-BATCH_SIZE = 1000
-PROGRESS_FILE = 'write_to_cassandra_progress.log'
-NEXT_BATCH_FILE = 'next_cassandra_batch.log'
+BATCH_SIZE = 100
+PROGRESS_FILE = 'logs/write_to_cassandra_progress.log'
+NEXT_BATCH_FILE = 'logs/next_cassandra_batch.log'
 
 if __name__ == "__main__":
     
@@ -47,7 +49,7 @@ if __name__ == "__main__":
             password=cassandra_conf["password"]
         )
 
-        with Cluster(auth_provider=auth_provider, default_retry_policy=RetryPolicy.RETRY) as cluster:
+        with Cluster(cassandra_conf["nodes"], auth_provider=auth_provider) as cluster:
             with cluster.connect(cassandra_conf["keyspace"]) as session:
                 with connection.cursor() as cursor:
                     # Retrieve first batch of game ratings
@@ -59,7 +61,8 @@ if __name__ == "__main__":
 
                     # Prepare insert statement
                     insert_cql = "INSERT INTO ratings (game_id, user_id, rating, estimated) " \
-                        "VALUES (%s, %s, %s, %s)"
+                        "VALUES (?, ?, ?, ?)"
+                    insert_stmt = session.prepare(insert_cql)
 
                     while len(rows) > BATCH_SIZE:
                         write_batch_to_cassandra(rows[0:-1])
