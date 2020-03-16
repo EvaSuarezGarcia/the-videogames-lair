@@ -19,7 +19,7 @@ def write_batch_to_cassandra(rows):
 
 BATCH_SIZE = 100
 PROGRESS_FILE = 'logs/write_metadata_to_cassandra_progress.log'
-NEXT_BATCH_FILE = 'logs/gti next_cassandra_metadata_batch.log'
+NEXT_BATCH_FILE = 'logs/next_cassandra_metadata_batch.log'
 METADATA_PREFIX = "game_"
 METADATA_ELEMENTS = [("age_rating",), ("concept",),
                      ("developer", "game_companies"), ("franchise",),
