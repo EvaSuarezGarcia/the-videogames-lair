@@ -54,7 +54,7 @@ if __name__ == "__main__":
                 with connection.cursor() as cursor:
                     # Retrieve first batch of game ratings
                     sql = "SELECT user_id, game_id, rating, estimated FROM game_ratings " \
-                        "WHERE (user_id = %s AND game_id >= %s) OR user_id > %s " \
+                        "WHERE ((user_id = %s AND game_id >= %s) OR user_id > %s) AND is_valid" \
                         "ORDER BY user_id, game_id LIMIT %s"
                     cursor.execute(sql, (user_id, game_id, user_id, BATCH_SIZE+1))
                     rows = cursor.fetchall()
