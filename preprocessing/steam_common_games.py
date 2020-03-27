@@ -26,7 +26,7 @@ if __name__ == "__main__":
                       UNION \
                       SELECT game_id, alias FROM game_aliases) \
                    SELECT DISTINCT id AS gb_id, steam_id \
-                   FROM steam_games JOIN g ON game_name = main_name \
+                   FROM all_steam_games_2 JOIN g ON game_name = main_name \
                    COLLATE utf8mb4_general_ci"
             cursor.execute(sql)
             common_games = cursor.fetchall()
