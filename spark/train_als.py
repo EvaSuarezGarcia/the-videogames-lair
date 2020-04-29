@@ -27,7 +27,8 @@ def main(argv):
             ratings = ratings.union(table_df)
 
         # Train ALS model
-        als = ALS(maxIter=FLAGS.iter, userCol=FLAGS.userCol, itemCol=FLAGS.itemCol, ratingCol=FLAGS.ratingCol)
+        als = ALS(maxIter=FLAGS.iter, rank=FLAGS.rank, regParam=FLAGS.regParam,
+                  userCol=FLAGS.userCol, itemCol=FLAGS.itemCol, ratingCol=FLAGS.ratingCol)
         als.setCheckpointInterval(FLAGS.checkpointInterval)
         als.setNumBlocks(FLAGS.numBlocks)
         model = als.fit(ratings)
@@ -39,11 +40,14 @@ def main(argv):
 FLAGS = flags.FLAGS
 
 # ALS parameters
-flags.DEFINE_integer("iter", 1, "Number of iterations")
+flags.DEFINE_integer("iter", 10, "Number of iterations")
+flags.DEFINE_integer("rank", 10, "Number of latent factors")
+flags.DEFINE_float("regParam", 0.1, "Regularization parameter")
 flags.DEFINE_string("userCol", "user_id", "Name of the user column")
 flags.DEFINE_string("itemCol", "game_id", "Name of the item column")
 flags.DEFINE_string("ratingCol", "rating", "Name of the ratings column")
-flags.DEFINE_string("checkpointDir", "checkpoint-dir", "Checkpoint directory")
+flags.DEFINE_string("checkpointDir", None, "Checkpoint directory")
+flags.mark_flag_as_required("checkpointDir")
 flags.DEFINE_integer("checkpointInterval", 5, "Checkpoint interval in number of iterations")
 flags.DEFINE_integer("numBlocks", 50, "Number of blocks for ALS parallelization")
 flags.DEFINE_string("outputPath", "als-models/als", "Path for saving the ALS model")
