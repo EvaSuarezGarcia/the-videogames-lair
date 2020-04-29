@@ -190,7 +190,6 @@ def create_run(model: ALSModel, target_batches: List[DataFrame], model_name: str
 def create_runs():
     with SparkSession.builder \
         .appName("Evaluate ALS") \
-        .master("yarn") \
         .config("spark.cassandra.connection.host", FLAGS.cassandraNodes) \
         .config("spark.cassandra.auth.username", FLAGS.cassandraUser) \
         .config("spark.cassandra.auth.password", FLAGS.cassandraPwd) \
@@ -217,7 +216,7 @@ def create_runs():
             for iterations in FLAGS.iter:
                 for rank in FLAGS.rank:
                     for reg_param in FLAGS.regParam:
-                        model_name = "ALS-%d-%d-%d-fold%d" % (iterations, rank, reg_param, i)
+                        model_name = "ALS-%d-%d-%.1f-fold%d" % (iterations, rank, reg_param, i)
                         run_file = os.path.join(FLAGS.runsDir, "run-%s.txt" % model_name)
 
                         # Check if this run already exists
