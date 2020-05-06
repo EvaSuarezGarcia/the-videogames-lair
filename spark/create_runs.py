@@ -14,9 +14,6 @@ FLAGS = flags.FLAGS
 flags.DEFINE_multi_integer("iter", [10], "Number of iterations (can be specified more than once)")
 flags.DEFINE_multi_integer("rank", [10], "Number of latent factors (can be specified more than once)")
 flags.DEFINE_multi_float("regParam", [0.1], "Regularization parameter (can be specified more than once)")
-flags.DEFINE_string("userCol", "user_id", "Name of the user column")
-flags.DEFINE_string("itemCol", "game_id", "Name of the item column")
-flags.DEFINE_string("ratingCol", "rating", "Name of the ratings column")
 flags.DEFINE_string("checkpointDir", None, "Checkpoint directory")
 flags.mark_flag_as_required("checkpointDir")
 flags.DEFINE_integer("checkpointInterval", 5, "Checkpoint interval in number of iterations")
@@ -31,9 +28,10 @@ flags.DEFINE_string("cassandraPwd", None, "Password to access Cassandra")
 flags.mark_flag_as_required("cassandraPwd")
 flags.DEFINE_string("keyspace", None, "Cassandra keyspace")
 flags.mark_flag_as_required("keyspace")
-flags.DEFINE_list("tables", None, "Comma-separated list of Cassandra rating tables")
-flags.mark_flag_as_required("tables")
-flags.register_validator("tables", lambda tables: len(tables) > 0, "Tables list must not be empty")
+flags.DEFINE_list("metadataTables", [], "Comma-separated list of Cassandra metadata tables to include in the training")
+flags.DEFINE_string("userCol", "user_id", "Name of the user column")
+flags.DEFINE_string("itemCol", "game_id", "Name of the item column")
+flags.DEFINE_string("ratingCol", "rating", "Name of the ratings column")
 
 # Other settings
 flags.DEFINE_integer("folds", 5, "Number of folds")
@@ -46,6 +44,7 @@ flags.DEFINE_string("hdfsUrl", None, "HDFS namenode URL")
 flags.mark_flag_as_required("hdfsUrl")
 flags.DEFINE_string("hdfsUser", None, "HDFS user")
 flags.DEFINE_integer("batches", 100, "Number of batches to divide target recommendation list into")
+flags.DEFINE_string("typeInfo", "CF", "Type of info fed to ALS (used as part of the model and run name)")
 
 # Driver logging configuration
 logging.basicConfig(filename="evaluate-als.log", level=logging.INFO,
@@ -133,6 +132,7 @@ def train_or_get_model(iterations: int, rank: int, reg_param: float, training_se
                   itemCol=FLAGS.itemCol, ratingCol=FLAGS.ratingCol)
         als.setCheckpointInterval(FLAGS.checkpointInterval)
         als.setNumBlocks(FLAGS.numBlocks)
+
         model = als.fit(training_set)
         # Save trained model
         model.save(model_file)
@@ -153,7 +153,7 @@ def create_run(model: ALSModel, target_batches: List[DataFrame], model_name: str
     batch_count = 0
 
     # Iterate over target batches
-    for i, batch in enumerate(target_batches):
+    for i, batch in enumerate(target_batches, 1):
         run_batch_tmp = run_batch_tmp_template % i
         run_batch_final = run_batch_final_template % i
 
@@ -173,7 +173,7 @@ def create_run(model: ALSModel, target_batches: List[DataFrame], model_name: str
                 .withColumn("method", lit("-"))
 
             # Write recommendations to tmp file
-            recommendations.where("rank < 100").orderBy("user_id", "rank")\
+            recommendations.where("rank < 100").orderBy(FLAGS.userCol, "rank")\
                 .select(FLAGS.userCol, "Q0", FLAGS.itemCol, "rank", bround("score", 5), "method")\
                 .write.csv(run_batch_tmp, sep="\t")
 
@@ -205,6 +205,22 @@ def create_runs():
         # Get dataset
         folds = get_folds_from_qrels(spark, client)
 
+        metadata = None
+
+        # Get metadata
+        if FLAGS.metadataTables:
+            metadata = spark.read.format("org.apache.spark.sql.cassandra")\
+                .options(keyspace=FLAGS.keyspace, table=FLAGS.metadataTables[0]).load()\
+                .select(FLAGS.userCol, FLAGS.itemCol, FLAGS.ratingCol)
+            for table in FLAGS.metadataTables[1:]:
+                table_df = spark.read.format("org.apache.spark.sql.cassandra")\
+                    .options(keyspace=FLAGS.keyspace, table=table).load()\
+                    .select(FLAGS.userCol, FLAGS.itemCol, FLAGS.ratingCol)
+                metadata = metadata.union(table_df)
+
+            metadata.cache()
+            metadata.count()
+
         # Iterate over folds
         for i, (training_set, test_set) in enumerate(folds, 1):
             logger.info("Processing fold %d" % i)
@@ -216,17 +232,23 @@ def create_runs():
             for iterations in FLAGS.iter:
                 for rank in FLAGS.rank:
                     for reg_param in FLAGS.regParam:
-                        model_name = "ALS-%d-%d-%.1f-fold%d" % (iterations, rank, reg_param, i)
+                        model_name = "ALS-%s-%d-%d-%.1f-fold%d" % (FLAGS.typeInfo, iterations, rank, reg_param, i)
                         run_file = os.path.join(FLAGS.runsDir, "run-%s.txt" % model_name)
 
                         # Check if this run already exists
                         if client.status(run_file, strict=False):
-                            logger.warning("Not evaluating model: iter %d rank %d param %f for fold %d; run already exists")
+                            logger.warning("Not evaluating model of type %s: "
+                                           "iter %d rank %d param %f for fold %d; run already exists"
+                                           % (FLAGS.typeInfo, iterations, rank, reg_param, i))
                         else:
-                            logger.info("Evaluating model: iter %d rank %d param %f for fold %d" % (iterations, rank, reg_param, i))
+                            logger.info("Evaluating model of type %s: iter %d rank %d param %f for fold %d"
+                                        % (FLAGS.typeInfo, iterations, rank, reg_param, i))
 
                             # Get ALS model
-                            model = train_or_get_model(iterations, rank, reg_param, training_set, client, model_name)
+                            if metadata:
+                                als_training_set = training_set.union(metadata)
+
+                            model = train_or_get_model(iterations, rank, reg_param, als_training_set, client, model_name)
 
                             # Generate run
                             create_run(model, target_batches, model_name, client)

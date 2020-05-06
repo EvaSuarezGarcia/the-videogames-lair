@@ -7,7 +7,6 @@ def main(argv):
     # Create Spark session configured for accessing Cassandra
     with SparkSession.builder \
             .appName("Train ALS") \
-            .master("yarn") \
             .config("spark.cassandra.connection.host", FLAGS.cassandraNodes) \
             .config("spark.cassandra.auth.username", FLAGS.cassandraUser) \
             .config("spark.cassandra.auth.password", FLAGS.cassandraPwd) \

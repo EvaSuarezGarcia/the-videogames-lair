@@ -5,6 +5,7 @@
 --ratingCol=rating
 --folds=5
 --seed=7
+--qrelsDir=datasets/steam/qrels
 // Iterations to test
 --iter=10
 // Ranks to test
