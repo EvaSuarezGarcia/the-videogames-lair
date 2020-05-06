@@ -33,7 +33,6 @@ flags.DEFINE_bool("overwrite", False, "Overwrite dataset if exists")
 def main(argv):
     with SparkSession.builder \
         .appName("Create Dataset %s" % FLAGS.datasetName) \
-        .master("yarn") \
         .config("spark.cassandra.connection.host", FLAGS.cassandraNodes) \
         .config("spark.cassandra.auth.username", FLAGS.cassandraUser) \
         .config("spark.cassandra.auth.password", FLAGS.cassandraPwd) \

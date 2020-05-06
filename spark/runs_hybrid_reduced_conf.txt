@@ -1,6 +1,6 @@
 --flagfile=common_conf.txt
---tables=ratings,game_genres,game_themes,game_concepts
+--metadataTables=game_genres,game_themes,game_concepts
+--typeInfo=hybrid-reduced
 // Output folders
---runsDir=als/runs/hybrid-full-runs
---modelsDir=als/models/hybrid-full-models
---qrelsDir=als/qrels/hybrid-full-qrels
+--runsDir=als-runs/hybrid-reduced
+--modelsDir=als-models/hybrid-reduced
