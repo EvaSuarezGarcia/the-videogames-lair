@@ -44,12 +44,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'vgl.apps.VglConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.staticfiles'
 ]
 
 MIDDLEWARE = [
@@ -100,6 +101,8 @@ DATABASES = {
     }
 }
 
+# User model
+AUTH_USER_MODEL = 'vgl.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -119,6 +122,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Where to redirect to after login/logout by default
+LOGIN_REDIRECT_URL = 'vgl:index'
+LOGOUT_REDIRECT_URL = 'vgl:index'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
