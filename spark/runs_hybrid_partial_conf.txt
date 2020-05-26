@@ -2,5 +2,5 @@
 --metadataTables=game_genres,game_companies,game_themes,game_platforms,game_concepts
 --typeInfo=hybrid-partial
 // Output folders
---runsDir=als-runs/hybrid-partialscp
+--runsDir=als-runs/hybrid-partial
 --modelsDir=als-models/hybrid-partial

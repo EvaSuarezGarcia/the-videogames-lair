@@ -8,3 +8,4 @@ __pycache__/
 *config.*
 private_conf.txt
 dataset_conf.txt
+secrets.json
