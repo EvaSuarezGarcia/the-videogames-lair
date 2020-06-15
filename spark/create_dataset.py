@@ -14,8 +14,8 @@ flags.DEFINE_string("cassandraPwd", None, "Password to access Cassandra")
 flags.mark_flag_as_required("cassandraPwd")
 flags.DEFINE_string("keyspace", None, "Cassandra keyspace")
 flags.mark_flag_as_required("keyspace")
-flags.DEFINE_list("tables", None, "Comma-separated list of Cassandra tables to include in the dataset")
-flags.mark_flag_as_required("tables")
+flags.DEFINE_string("table", None, "Ratings table")
+flags.mark_flag_as_required("table")
 flags.DEFINE_string("userCol", "user_id", "Name of the user column")
 flags.DEFINE_string("itemCol", "game_id", "Name of the item column")
 flags.DEFINE_string("ratingCol", "rating", "Name of the ratings column")
@@ -23,7 +23,9 @@ flags.DEFINE_string("ratingCol", "rating", "Name of the ratings column")
 # Other settings
 flags.DEFINE_string("datasetName", None, "Dataset name")
 flags.mark_flag_as_required("datasetName")
-flags.DEFINE_string("datasetsDir", "datasets", "Directory in which to save the dataset")
+flags.DEFINE_string("datasetDir", "datasets", "Directory in which to save the dataset")
+flags.DEFINE_integer("minRatings", 1, "Minimum number of ratings that a user needs to have to be included "
+                                      "in the dataset")
 flags.DEFINE_integer("folds", 5, "Number of folds")
 flags.register_validator("folds", lambda x: x >= 2, "Number of folds must be >= 2")
 flags.DEFINE_integer("seed", 7, "Seed for random split")
@@ -40,28 +42,29 @@ def main(argv):
         .getOrCreate() \
     as spark:
         ratings = spark.read.format("org.apache.spark.sql.cassandra") \
-            .options(keyspace=FLAGS.keyspace, table=FLAGS.tables[0]) \
+            .options(keyspace=FLAGS.keyspace, table=FLAGS.table) \
             .load().select(FLAGS.userCol, FLAGS.itemCol, FLAGS.ratingCol)
-        for table in FLAGS.tables[1:]:
-            table_df = spark.read.format("org.apache.spark.sql.cassandra") \
-                .options(keyspace=FLAGS.keyspace, table=table) \
-                .load().select(FLAGS.userCol, FLAGS.itemCol, FLAGS.ratingCol)
-            ratings = ratings.union(table_df)
+
+        valid_users = ratings.groupBy(FLAGS.userCol).count().where("count >= " + str(FLAGS.minRatings)) \
+            .select(FLAGS.userCol).withColumnRenamed(FLAGS.userCol, "this_" + FLAGS.userCol)
+
+        valid_ratings = ratings.join(valid_users, ratings[FLAGS.userCol] == valid_users["this_" + FLAGS.userCol]) \
+            .select(FLAGS.userCol, FLAGS.itemCol, FLAGS.ratingCol)
 
         # Split dataset into FLAG.folds splits of (aprox) the same size
-        ratings.cache()
+        valid_ratings.cache()
         weights = [1.0] * FLAGS.folds
-        splits = [split.cache() for split in ratings.randomSplit(weights, seed=FLAGS.seed)]
+        splits = [split.cache() for split in valid_ratings.randomSplit(weights, seed=FLAGS.seed)]
 
         # Materialize splits in memory
         for split in splits:
             split.count()
 
         # Unpersist original ratings df as it is no longer needed
-        ratings.unpersist()
+        valid_ratings.unpersist()
 
         # Write folds
-        dataset_root_dir = os.path.join(FLAGS.datasetsDir, FLAGS.datasetName)
+        dataset_root_dir = os.path.join(FLAGS.datasetDir, FLAGS.datasetName)
         test_dir = os.path.join(dataset_root_dir, "test")
         base_dir = os.path.join(dataset_root_dir, "base")
         qrels_dir = os.path.join(dataset_root_dir, "qrels")
