@@ -9,3 +9,4 @@ __pycache__/
 private_conf.txt
 dataset_conf.txt
 secrets.json
+img_games
