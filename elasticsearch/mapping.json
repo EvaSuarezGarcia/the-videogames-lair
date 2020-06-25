@@ -1,0 +1,107 @@
+{
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0,
+        "analysis": {
+            "filter": {
+                "english_stop": {
+                    "type": "stop",
+                    "stopwords": "_english_"
+                },
+                "english_stemmer": {
+                    "type": "stemmer",
+                    "language": "english"
+                },
+                "english_possessive_stemmer": {
+                    "type": "stemmer",
+                    "language": "possessive_english"
+                }
+            },
+            "analyzer": {
+                "my_english": {
+                    "tokenizer": "standard",
+                    "filter": [
+                        "english_possessive_stemmer",
+                        "lowercase",
+                        "english_stop",
+                        "asciifolding",
+                        "english_stemmer"
+                    ],
+                    "char_filter": [
+                        "html_strip"
+                    ]
+                }
+            }
+        }
+    },
+    "mappings": {
+        "properties": {
+            "name": {
+                "type": "text",
+                "analyzer": "my_english"
+            },
+            "aliases": {
+                "type": "text",
+                "analyzer": "my_english"
+            },
+            "deck": {
+                "type": "text",
+                "analyzer": "my_english"
+            },
+            "description": {
+                "type": "text",
+                "analyzer": "my_english"
+            },
+            "release_date": {
+                "type": "date",
+                "format": "date"
+            },
+            "gb_id": {"type": "keyword"},
+            "steam_id": {"type": "keyword"},
+            "image": {
+                "type": "keyword",
+                "index": false
+            },
+            "age_ratings": {"type": "keyword"},
+            "age_ratings_strings": {"type": "keyword"},
+            "concepts": {
+                "type": "keyword",
+                "fields": {
+                    "text": {
+                        "type":  "text",
+                        "analyzer": "my_english"
+                    }
+                }
+            },
+            "concepts_strings": {"type": "keyword"},
+            "developers": {"type": "keyword"},
+            "developers_strings": {"type": "keyword"},
+            "publishers": {"type": "keyword"},
+            "publishers_strings": {"type": "keyword"},
+            "franchises": {"type": "keyword"},
+            "franchises_strings": {"type": "keyword"},
+            "genres": {
+                "type": "keyword",
+                "fields": {
+                    "text": {
+                        "type": "text",
+                        "analyzer": "my_english"
+                    }
+                }
+            },
+            "genres_strings": {"type": "keyword"},
+            "platforms": {"type": "keyword"},
+            "platforms_strings": {"type": "keyword"},
+            "themes": {
+                "type": "keyword",
+                "fields": {
+                    "text": {
+                        "type": "text",
+                        "analyzer": "my_english"
+                    }
+                }
+            },
+            "themes_strings": {"type": "keyword"}
+        }
+    }
+}
