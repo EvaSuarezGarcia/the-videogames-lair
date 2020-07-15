@@ -29,6 +29,7 @@ flags.mark_flag_as_required("imagesFolder")
 flags.DEFINE_string("imagesSubfolder", None, "Subfolder to save the game images to. "
                                              "This will be used for the URL of the image field.")
 
+
 def get_related_metadata(game_id, table, connection):
     select_sql = "SELECT * FROM {} WHERE game_id = {}".format(table, game_id)
     with connection.cursor() as cursor:
@@ -114,6 +115,7 @@ def parse_db_game(game_db, connection):
     game_name = game_db[1]
     game = {
         "gb_id": game_id,
+        "vgl_id": game_id,  # Use GB ID as VGL ID to avoid changing the ratings dataset
         "name": game_name
     }
     # Some dates may be missing entirely, or they may be missing the month and/or day
@@ -136,9 +138,10 @@ def parse_db_game(game_db, connection):
 
 
 def add_gb_data(game, gb: GbApi):
-    gb_data = gb.get_game(game['gb_id'], field_list=["deck", "description", "image"])
+    gb_data = gb.get_game(game['gb_id'], field_list=["deck", "description", "image", "site_detail_url"])
     add_to_game(game, "deck", gb_data.get("deck"))
     add_to_game(game, "description", gb_data.get("description"))
+    add_to_game(game, "site_detail_url", gb_data.get("site_detail_url"))
 
     # Download image
     image = gb_data.get("image", {}).get("thumb_url", "")

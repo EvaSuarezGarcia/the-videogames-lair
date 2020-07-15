@@ -58,7 +58,12 @@
             },
             "gb_id": {"type": "keyword"},
             "steam_id": {"type": "keyword"},
+            "vgl_id": {"type": "keyword"},
             "image": {
+                "type": "keyword",
+                "index": false
+            },
+            "site_detail_url": {
                 "type": "keyword",
                 "index": false
             },
