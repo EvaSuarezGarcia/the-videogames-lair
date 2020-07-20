@@ -97,6 +97,8 @@ WSGI_APPLICATION = 'videogames_lair_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 use_sqlite_cases = ['jenkins', 'test']
+
+# If we are running tests, use SQLite in memory. Else, use normal DB
 if any(use_sqlite_case in sys.argv for use_sqlite_case in use_sqlite_cases):
     DATABASES = {
         'default': {
