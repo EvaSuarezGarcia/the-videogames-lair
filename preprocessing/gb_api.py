@@ -9,7 +9,6 @@ class GbApi(object):
     headers = {"user-agent": "ShynfiaBot"}
     last_request = -1
 
-
     def limit_rate(self):
         now = time.time()
         elapsed = now - self.last_request
