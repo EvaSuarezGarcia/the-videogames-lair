@@ -3,6 +3,7 @@ import re
 import time
 from .config import gb_api_key
 
+
 class GbApi(object):
 
     headers = {"user-agent": "ShynfiaBot"}
