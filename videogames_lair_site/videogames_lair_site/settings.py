@@ -20,11 +20,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Sensitive settings are hidden
-def get_env_value(setting: str):
+def get_env_value(setting: str, optional: bool = False):
     try:
         return os.environ[setting]
     except KeyError:
-        raise ImproperlyConfigured("Set the '{}' environment variable".format(setting))
+        if optional:
+            return None
+        else:
+            raise ImproperlyConfigured("Set the '{}' environment variable".format(setting))
 
 
 # Quick-start development settings - unsuitable for production
@@ -94,9 +97,11 @@ WSGI_APPLICATION = 'videogames_lair_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 use_sqlite_cases = ['jenkins', 'test']
+use_sqlite = any(use_sqlite_case in sys.argv for use_sqlite_case in use_sqlite_cases) \
+             or get_env_value('USE_SQLITE', True)
 
 # If we are running tests, use SQLite in memory. Else, use normal DB
-if any(use_sqlite_case in sys.argv for use_sqlite_case in use_sqlite_cases):
+if use_sqlite:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
