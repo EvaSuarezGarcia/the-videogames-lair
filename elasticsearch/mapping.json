@@ -57,7 +57,7 @@
                 "format": "date"
             },
             "gb_id": {"type": "keyword"},
-            "steam_id": {"type": "keyword"},
+            "steam_ids": {"type": "keyword"},
             "vgl_id": {"type": "keyword"},
             "image": {
                 "type": "keyword",

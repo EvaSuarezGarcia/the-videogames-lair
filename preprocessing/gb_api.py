@@ -3,6 +3,7 @@ import re
 import time
 from .config import gb_api_key
 
+
 class GbApi(object):
 
     headers = {"user-agent": "ShynfiaBot"}
@@ -208,3 +209,18 @@ class GbApi(object):
         game_elements = self.list_with_game_id(game_id, self.extract_ids(elements))
 
         return elements, game_elements
+
+    def get(self, url, field_list):
+        params = {
+            "api_key": gb_api_key,
+            "format": "json"
+        }
+
+        if field_list:
+            fields = ','.join(field_list)
+            params["field_list"] = fields
+
+        self.limit_rate()
+
+        result = requests.get(url, params=params, headers=self.headers).json()
+        return result.get('results', {})

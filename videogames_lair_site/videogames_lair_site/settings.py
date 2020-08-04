@@ -11,29 +11,30 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import sys
 import json
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
 # Sensitive settings are hidden
-with open(os.path.join(BASE_DIR, "secrets.json")) as f:
-    secrets = json.load(f)
-
-
-def get_secret(setting: str):
+def get_env_value(setting: str, optional: bool = False):
     try:
-        return secrets[setting]
+        return os.environ[setting]
     except KeyError:
-        raise ImproperlyConfigured("Set the '{}' setting".format(setting))
+        if optional:
+            return None
+        else:
+            raise ImproperlyConfigured("Set the '{}' environment variable".format(setting))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secret('SECRET_KEY')
+SECRET_KEY = get_env_value('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -44,6 +45,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_jenkins',
     'vgl.apps.VglConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -55,8 +57,11 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.steam'
+    'allauth.socialaccount.providers.steam',
+    'sequences.apps.SequencesConfig'
 ]
+
+PROJECT_APPS = ['vgl']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -91,20 +96,42 @@ WSGI_APPLICATION = 'videogames_lair_site.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+use_sqlite_cases = ['jenkins', 'test']
+use_sqlite = any(use_sqlite_case in sys.argv for use_sqlite_case in use_sqlite_cases) \
+             or get_env_value('USE_SQLITE', True)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'videogames_lair',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'USER': 'vgl',
-        'PASSWORD': get_secret('DB_PASSWORD'),
-        'OPTIONS': {
-            'charset': 'utf8mb4'
+# If we are running tests, use SQLite in memory. Else, use normal DB
+if use_sqlite:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+            'TEST': {
+                'NAME': ':memory:'
+            }
         }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'videogames_lair',
+            'HOST': 'localhost',
+            'PORT': '3306',
+            'USER': 'vgl',
+            'PASSWORD': get_env_value('DB_PASSWORD'),
+            'OPTIONS': {
+                'charset': 'utf8mb4'
+            },
+            'TEST': {
+                'CHARSET': 'utf8mb4',
+                'COLLATION': 'utf8mb4_unicode_ci'
+            }
+        }
+    }
+
+# Elasticsearch settings
+ES_HOST = get_env_value("ES_HOST")
 
 # Authentication settings
 AUTH_USER_MODEL = 'vgl.User'
@@ -157,10 +184,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Send email settings
 EMAIL_USE_TLS = True
-EMAIL_HOST = get_secret("EMAIL_HOST")
+EMAIL_HOST = get_env_value("EMAIL_HOST")
 EMAIL_PORT = 587
-EMAIL_HOST_USER = DEFAULT_FROM_EMAIL = get_secret("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = DEFAULT_FROM_EMAIL = get_env_value("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_env_value("EMAIL_HOST_PASSWORD")
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Internationalization
