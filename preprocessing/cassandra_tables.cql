@@ -69,3 +69,22 @@ CREATE TABLE game_themes (
     rating tinyint,
     PRIMARY KEY (user_id, game_id)
 );
+
+CREATE TABLE steam_games (
+    steam_id int,
+    game_name text,
+    p20 float,
+    p40 float,
+    p60 float,
+    p80 float,
+    players int,
+    owners int,
+    PRIMARY KEY (steam_id)
+);
+
+CREATE TABLE steam_playtimes (
+    user_id int,
+    steam_id int,
+    playtime int,
+    PRIMARY KEY (user_id, steam_id)
+);

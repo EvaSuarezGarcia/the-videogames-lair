@@ -5,11 +5,17 @@
     <title>The Videogame's Lair</title>
 </head>
 <body>
-    <p>Hello, world. You're at the Videogame's Lair index.</p>
-    {% if user.is_authenticated %}
-        <a href={% url 'account_logout' %}>Log out</a>
-    {% else %}
-        <a href={% url 'account_login' %}>Log in</a>
-    {% endif %}
+<p>Hello, world. You're at the Videogame's Lair index.</p>
+
+<form action="{% url 'vgl:search' %}" method="get">
+    <input name="q" type="text" placeholder="Search...">
+    <input type="submit" value="Search">
+</form>
+
+{% if user.is_authenticated %}
+    <a href={% url 'account_logout' %}>Log out</a>
+{% else %}
+    <a href={% url 'account_login' %}>Log in</a>
+{% endif %}
 </body>
 </html>

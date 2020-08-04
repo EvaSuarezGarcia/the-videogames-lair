@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Videogame's Lair | Search Results</title>
+</head>
+<body>
+<h1>Search Results</h1>
+<form action="{% url 'vgl:search' %}" method="get">
+    <input name="q" type="text" placeholder="Search...">
+    <input type="submit" value="Search">
+</form>
+{% if results_list %}
+    <ul>
+    {% for game in results_list %}
+        <li>
+            {{ game.name }}
+        </li>
+    {% endfor %}
+    </ul>
+    <div>
+        <span>
+            {% if page_obj.has_previous %}
+                <a href="?q={{ query|urlencode }}&page=1">&laquo; first</a>
+                <a href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+            <span>
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+            {% if page_obj.has_next %}
+                <a href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">next</a>
+                <a href="?q={{ query|urlencode }}&page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% else %}
+    <p>No results.</p>
+{% endif %}
+</body>
+</html>

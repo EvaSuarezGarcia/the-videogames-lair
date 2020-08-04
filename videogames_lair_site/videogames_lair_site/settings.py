@@ -130,6 +130,9 @@ else:
         }
     }
 
+# Elasticsearch settings
+ES_HOST = get_env_value("ES_HOST")
+
 # Authentication settings
 AUTH_USER_MODEL = 'vgl.User'
 

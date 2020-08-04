@@ -54,7 +54,7 @@ class AgeRating(GiantBombEntity):
 
 
 class Concept(GiantBombEntity):
-    deck = models.CharField(max_length=1000)
+    deck = models.CharField(max_length=1000, null=True, blank=True)
 
 
 class Company(GiantBombEntity):
@@ -62,16 +62,16 @@ class Company(GiantBombEntity):
 
 
 class Franchise(GiantBombEntity):
-    deck = models.CharField(max_length=1000)
+    deck = models.CharField(max_length=1000, null=True, blank=True)
 
 
 class Genre(GiantBombEntity):
-    deck = models.CharField(max_length=1000)
+    deck = models.CharField(max_length=1000, null=True, blank=True)
 
 
 class Platform(GiantBombEntity):
     abbreviation = models.CharField(max_length=20)
-    deck = models.CharField(max_length=1000)
+    deck = models.CharField(max_length=1000, null=True, blank=True)
 
 
 class Theme(GiantBombEntity):
