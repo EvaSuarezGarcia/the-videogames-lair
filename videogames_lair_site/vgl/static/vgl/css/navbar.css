@@ -1,0 +1,120 @@
+@media (max-width: 991px) {
+    /* Navbar appears as a side menu on tablets and down */
+    .navbar-collapse.collapsing .navbar-nav {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -35%;
+        transition: all 0.35s ease;
+    }
+
+    .navbar-collapse.show .navbar-nav {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        flex-direction: column;
+        width: 35%;
+        transition: left 0.35s ease;
+    }
+
+    .nav-link {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+/* Side menu has different size on each breakpoint */
+@media (max-width: 767px) {
+    .navbar-collapse.collapsing .navbar-nav {
+        left: -45%;
+    }
+
+    .navbar-collapse.show .navbar-nav {
+        width: 45%;
+    }
+}
+
+@media (max-width: 575px) {
+    .navbar-collapse.collapsing .navbar-nav {
+        left: -65%;
+    }
+
+    .navbar-collapse.show .navbar-nav {
+        width: 65%;
+    }
+}
+
+/* On tablets, search bar takes up 50% of navbar space */
+@media (min-width: 768px) {
+    #mobileSearch .input-group {
+        width: 50%;
+    }
+}
+
+/* Hide mobile search form on desktop */
+@media (min-width: 992px) {
+    #mobileSearch {
+        display: none !important;
+    }
+}
+
+/* Navbar content is on the top layer of the page */
+.navbar-nav {
+    z-index: 9999;
+}
+
+/* When the overlay is inactive, it is in the back and doesn't respond to pointer events */
+.overlay {
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background: black;
+    opacity: 0;
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+/* Overlay goes to the middle layer when active so it darkens the page */
+.overlay.overlay-active {
+    z-index: 998;
+    opacity: 0.7;
+    pointer-events: auto;
+}
+
+/* Make the mobile search button as big as the side menu button */
+#mobileSearchToggler .fa-search {
+    font-size: 1.5em;
+}
+
+/* Nav-links styling */
+.nav-link {
+    transition: background-color 0.2s ease-in-out;
+    border-radius: 0.25rem;
+}
+
+.nav-link.active {
+    background-color: var(--dark-purple);
+}
+
+.nav-link:not(.active):hover {
+    background-color: var(--white);
+    color: var(--purple) !important;
+}
+
+/* Make the icons of mobile nav-links the same size so the text lines up  */
+#navbarContent .nav-link:not(.desktop) span {
+    width: 1.5em;
+}
+
+/* Search form in nav bar has a different glow color */
+nav .form-control:focus {
+    border-color: var(--light-purple);
+    box-shadow: 0 0 0 0.2rem rgba(var(--light-purple-rgb), 0.25);
+}
+
+nav hr {
+    border-top: 2px solid rgba(255, 255, 255, 0.5);
+}

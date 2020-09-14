@@ -1,0 +1,11 @@
+/************ Color utilities ************/
+:root {
+    --dark-purple: #56329A;
+    --dark-purple-rgb: 86, 50, 154;
+    --light-purple: #B7A0E0;
+    --light-purple-rgb: 183, 160, 224;
+}
+
+.bg-purple {
+    background-color: var(--purple);
+}

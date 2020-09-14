@@ -39,3 +39,6 @@ class SearchResultsView(ListView):
             "query": self.request.GET.get("q")
         }
         return super().get_context_data(**context)
+
+def test(request):
+    return render(request, "vgl/base.html")

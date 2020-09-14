@@ -1,0 +1,42 @@
+<!-- Navbar is collapsed for tablets and down -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-purple">
+    <button id="navbarMenuToggler" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="#">
+        VGL
+    </a>
+    <button id="mobileSearchToggler" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mobileSearch">
+        <span class="fas fa-search"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarContent">
+        <div class="navbar-nav bg-purple mr-auto">
+            <div class="d-inline d-lg-none px-3 pt-2 mt-3 text-white">
+                <span class="font-weight-bold">The Videogame's Lair</span>
+                <button id="dismiss" data-toggle="collapse" data-target="#navbarContent" class="close text-white float-right mt-n3" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr class="d-lg-none">
+            </div>
+            <a class="nav-link active" href="#"><span class="fas fa-home mr-1 mr-lg-0"></span>Home<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="#"><span class="fas fa-compass mr-1 mr-lg-n1"></span>Explore</a>
+            <!-- Normal links for mobile -->
+            <a class="nav-link d-lg-none" href="#"><span class="fas fa-sign-in-alt mr-1"></span>Log In</a>
+            <a class="nav-link d-lg-none" href="#"><span class="fas fa-user-plus mr-1"></span>Sign Up</a>
+        </div>
+        <!-- Search bar for desktop -->
+        {% include "vgl/navbar_searchbar.html" with mobile=False %}
+        <!-- Right-aligned links for desktop -->
+        <div class="navbar-nav bg-purple d-none d-lg-flex">
+            <a class="nav-link desktop" href="#"><span class="fas fa-sign-in-alt mr-1"></span>Log In</a>
+            <a class="nav-link desktop" href="#"><span class="fas fa-user-plus mr-1"></span>Sign Up</a>
+        </div>
+    </div>
+
+    <!-- Search bar for mobile -->
+    <div class="collapse navbar-collapse" id="mobileSearch">
+        {% include "vgl/navbar_searchbar.html" with mobile=True %}
+    </div>
+</nav>
+
+<div class="overlay" data-toggle="collapse" data-target="#navbarContent"></div>
