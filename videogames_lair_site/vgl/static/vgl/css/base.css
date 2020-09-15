@@ -9,3 +9,14 @@
 .bg-purple {
     background-color: var(--purple);
 }
+
+/************ Spacing utilities ************/
+@media (min-width: 992px) {
+    .mr-lg-n015rem {
+        margin-right: -0.15rem !important;
+    }
+
+    .w-lg-auto {
+        width: auto !important;
+    }
+}

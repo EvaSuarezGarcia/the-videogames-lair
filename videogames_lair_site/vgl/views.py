@@ -11,14 +11,6 @@ from videogames_lair_site import settings
 connections.create_connection(hosts=settings.ES_HOST)
 
 
-def index(request):
-    return render(request, "vgl/index.html")
-
-
-def search(request):
-    return render(request, "vgl/search.html")
-
-
 class SearchResultsView(ListView):
     template_name = "vgl/search.html"
     context_object_name = "results_list"
@@ -39,6 +31,3 @@ class SearchResultsView(ListView):
             "query": self.request.GET.get("q")
         }
         return super().get_context_data(**context)
-
-def test(request):
-    return render(request, "vgl/base.html")
