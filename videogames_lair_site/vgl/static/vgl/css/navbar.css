@@ -104,12 +104,6 @@
     color: var(--purple) !important;
 }
 
-/* Make the icons of mobile nav-links the same size and centered so the text lines up  */
-#navbarContent .nav-link:not(.desktop) span {
-    width: 1.5em;
-    text-align: center;
-}
-
 /* Search form in nav bar has a different glow color */
 nav .form-control:focus {
     border-color: var(--light-purple);

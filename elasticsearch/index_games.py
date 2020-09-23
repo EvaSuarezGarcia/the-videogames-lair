@@ -144,7 +144,7 @@ def add_gb_data(game, gb: GbApi):
     add_to_game(game, "site_detail_url", gb_data.get("site_detail_url"))
 
     # Download image
-    image = gb_data.get("image", {}).get("thumb_url", "")
+    image = gb_data.get("image", {}).get("small_url", "")
     if image:
         filename = image.split("/")[-1]
         file_path = join(FLAGS.imagesFolder, FLAGS.imagesSubfolder, filename)
@@ -154,11 +154,11 @@ def add_gb_data(game, gb: GbApi):
                 response.raw.decode_content = True
                 with open(file_path, "wb") as f:
                     shutil.copyfileobj(response.raw, f)
-                add_to_game(game, "image", join(FLAGS.imagesSubfolder, filename))
+                add_to_game(game, "image", filename)
             else:
                 print("Image of game {} could not be downloaded".format(game['gb_id']))
         else:
-            add_to_game(game, "image", join(FLAGS.imagesSubfolder, filename))
+            add_to_game(game, "image", filename)
 
 
 def index_games_main(argv):
