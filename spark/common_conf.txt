@@ -9,6 +9,6 @@
 // Iterations to test
 --iter=10
 // Ranks to test
---rank=10
+--rank=50
 // Regularization parameters to test
 --regParam=0.1

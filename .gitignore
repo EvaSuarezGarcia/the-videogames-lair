@@ -11,3 +11,6 @@ dataset_conf.txt
 secrets.json
 img_games/
 reports/
+bootstrap/
+fontawesome/
+jquery/

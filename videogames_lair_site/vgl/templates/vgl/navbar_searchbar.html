@@ -1,0 +1,11 @@
+{% comment %}
+    Uses context variable 'mobile' (boolean).
+{% endcomment %}
+<form action="{% url "vgl:search" %}" method="get" class="form-inline {% if mobile %}mt-2 justify-content-center{% else %}d-none d-lg-inline-block mx-2{% endif %}">
+    <div class="input-group">
+        <input name="q" class="form-control" type="search" placeholder="Quick Search" aria-label="Search" required>
+        <div class="input-group-append">
+            <button class="btn btn-info" type="submit">{% if mobile %}Search{% else %}<span class="fas fa-search"></span>{% endif %}</button>
+        </div>
+    </div>
+</form>
