@@ -48,7 +48,7 @@
                             </div>
                             {# Basic game info #}
                             <div class="card-body">
-                                <h5 class="card-title">{{ game.name }}</h5>
+                                <h5 class="card-title">{{ game.name }} ({{ game.release_date|date:"Y" }})</h5>
                                 {% if game.aliases %}
                                     <h6 class="card-subtitle mb-2 text-muted">Also known as: {{ game.aliases|join:", " }}</h6>
                                 {% endif %}
