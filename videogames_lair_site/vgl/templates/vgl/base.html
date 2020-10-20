@@ -77,5 +77,6 @@
     <script>if (typeof($.fn.modal) === "undefined") {document.write('<script src="{% static "vgl/bootstrap/js/bootstrap.bundle.min.js" %}"><\/script>')}</script>
 
     <script src="{% static "vgl/js/navbar.js" %}"></script>
+    {% block extra_js %}{% endblock extra_js %}
 </body>
 </html>

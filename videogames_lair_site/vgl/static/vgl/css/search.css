@@ -5,3 +5,24 @@
         max-width: 1500px;
     }
 }
+
+#advanced-filters {
+    transition: max-height 0.8s;
+    max-height: 1000px;
+}
+
+#advanced-filters.collapsed {
+    max-height: 0;
+}
+
+#advanced-filters-text {
+    font-size: 0;
+    opacity: 0;
+    transition: opacity 0.2s 0s ease, font-size 0.2s 0.2s ease;
+}
+
+#advanced-filters-btn:hover #advanced-filters-text {
+    font-size: inherit;
+    opacity: 1;
+    transition: font-size 0.2s 0s ease, opacity 0.2s 0.2s ease;
+}
