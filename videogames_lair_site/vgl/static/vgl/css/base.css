@@ -73,14 +73,14 @@ body > section {
 }
 
 /************ Sizing utilities ************/
-@media (min-width: 758px) {
-    .w-md-75 {
+@media (min-width: 992px) {
+    .w-lg-75 {
         width: 75% !important;
     }
 }
 
-@media (min-width: 992px) {
-    .w-lg-50 {
+@media (min-width: 1200px) {
+    .w-xl-50 {
         width: 50% !important;
     }
 }
