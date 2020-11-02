@@ -54,7 +54,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django_jenkins',
     'vgl.apps.VglConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -105,7 +104,7 @@ WSGI_APPLICATION = 'videogames_lair_site.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-use_sqlite_cases = ['jenkins', 'test']
+use_sqlite_cases = ['test']
 use_sqlite = any(use_sqlite_case in sys.argv for use_sqlite_case in use_sqlite_cases) \
              or get_secret('USE_SQLITE', True)
 
@@ -138,6 +137,11 @@ else:
             }
         }
     }
+
+# Test settings
+TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+TEST_OUTPUT_DIR = "reports"
+TEST_OUTPUT_FILE_NAME = "report.xml"
 
 # Elasticsearch settings
 ES_HOST = get_secret("ES_HOST")
