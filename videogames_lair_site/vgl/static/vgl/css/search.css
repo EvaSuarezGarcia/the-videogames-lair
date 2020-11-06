@@ -7,12 +7,15 @@
 }
 
 #advanced-filters {
-    transition: max-height 0.8s;
     max-height: 1000px;
+    opacity: 1;
+    transition: max-height 0.8s, opacity 0.8s;
 }
 
 #advanced-filters.collapsed {
     max-height: 0;
+    opacity: 0;
+    transition: max-height 0.8s, opacity 0.4s;
 }
 
 #advanced-filters-text {

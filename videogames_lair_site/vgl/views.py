@@ -5,6 +5,7 @@ from django.views.generic import ListView
 from elasticsearch_dsl import connections
 from elasticsearch_dsl.query import MultiMatch
 from vgl.documents import Game
+from vgl.forms import SearchForm
 from videogames_lair_site import settings
 
 
@@ -17,8 +18,15 @@ class SearchResultsView(ListView):
     paginate_by = 10
     total_results = 100
 
+    def setup(self, request, *args, **kwargs):
+        super(SearchResultsView, self).setup(request, *args, **kwargs)
+        self.form = SearchForm(self.request.GET)
+
     def get_queryset(self):
-        query_text = self.request.GET.get("q", "").strip()
+        query_text = None
+        if self.form.is_valid():
+            query_text = self.form.cleaned_data.get("q")
+
         if not query_text:
             return []
         query = MultiMatch(query=query_text,
@@ -27,11 +35,8 @@ class SearchResultsView(ListView):
         return Game.search().query(query)[:self.total_results].execute()
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = {
-            "query": self.request.GET.get("q", "").strip()
-        }
-
-        context.update(super().get_context_data(**context))
+        context = super().get_context_data()
+        context["form"] = self.form
 
         paginator = context["paginator"]
 

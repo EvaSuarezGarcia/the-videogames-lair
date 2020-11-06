@@ -14,3 +14,4 @@ reports/
 bootstrap/
 fontawesome/
 jquery/
+.coverage
