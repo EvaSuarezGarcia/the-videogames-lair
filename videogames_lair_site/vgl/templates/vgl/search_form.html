@@ -10,37 +10,37 @@
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="genre-input">Genres</label>
-                <input id="genre-input" type="text" name="genre" class="form-control advanced-search">
+                <input id="genre-input" type="text" name="genre" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_genre" %}" autocomplete="off">
             </div>
             <div class="form-group col-md-6">
                 <label for="theme-input">Themes</label>
-                <input id="theme-input" type="text" name="theme" class="form-control advanced-search">
+                <input id="theme-input" type="text" name="theme" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_theme" %}" autocomplete="off">
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="franchise-input">Franchises</label>
-                <input id="franchise-input" type="text" name="fran" class="form-control advanced-search">
+                <input id="franchise-input" type="text" name="fran" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_franchise" %}" autocomplete="off">
             </div>
             <div class="form-group col-md-6">
                 <label for="platform-input">Platforms</label>
-                <input id="platform-input" type="text" name="plat" class="form-control advanced-search">
+                <input id="platform-input" type="text" name="plat" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_platform" %}" autocomplete="off">
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="developer-input">Developers</label>
-                <input id="developer-input" type="text" name="dev" class="form-control advanced-search">
+                <input id="developer-input" type="text" name="dev" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_company" %}" autocomplete="off">
             </div>
             <div class="form-group col-md-6">
                 <label for="publisher-input">Publishers</label>
-                <input id="publisher-input" type="text" name="pub" class="form-control advanced-search">
+                <input id="publisher-input" type="text" name="pub" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_company" %}" autocomplete="off">
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-6 col-md-4 col-lg-6 ml-md-auto">
                 <label for="input-age-rating-system">Age Ratings</label>
-                <select id="input-age-rating-system" name="ar-sys" class="form-control advanced-search">
+                <select id="input-age-rating-system" name="ar-sys" class="form-control mb-1 advanced-search">
                     <option selected>System</option>
                     <option>Dummy option</option>
                 </select>
@@ -55,7 +55,7 @@
         </div>
         <div class="form-group col-md-8 col-lg-12 p-0 mx-auto">
             <label for="input-release-year">Release Year</label>
-            <input id="input-release-year" type="text" class="js-range-slider" name="years">
+            <input id="input-release-year" type="text" class="js-range-slider advanced-search" name="years">
         </div>
         <div class="d-flex justify-content-center">
             <button type="reset" class="btn btn-light border">Clear Filters</button>

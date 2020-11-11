@@ -106,3 +106,15 @@ body > section {
         font-size: 1.5rem !important;
     }
 }
+
+.line-height-inherit {
+    line-height: inherit;
+}
+
+.font-weight-inherit {
+    font-weight: inherit;
+}
+
+.font-size-inherit {
+    font-size: inherit;
+}

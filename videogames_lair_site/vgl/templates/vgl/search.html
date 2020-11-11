@@ -82,31 +82,6 @@
 {% endblock %}
 {% block extra_js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $(".advanced-search").keydown(function (e) {
-                if (e.keyCode === 13) {
-                    debugger;
-                    if (this.value.trim()) {
-                        let dup = this.cloneNode();
-                        dup.readOnly = true;
-                        this.parentNode.insertBefore(dup, this.nextSibling);
-                        this.value = "";
-                    }
-                    e.preventDefault();
-                    return false;
-                }
-            });
-
-            $("form").submit(function () {
-                $(".advanced-search:not([readonly])").remove();
-            });
-
-            $(".js-range-slider").ionRangeSlider({
-                type: "double",
-                skin: "round"
-            });
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
     <script src="{% static 'vgl/js/search.js' %}"></script>
 {% endblock%}
