@@ -10,5 +10,5 @@ class SearchForm(forms.Form):
     platforms = MultiValueField(forms.CharField(), "plat", required=False)
     developers = MultiValueField(forms.CharField(), "dev", required=False)
     publishers = MultiValueField(forms.CharField(), "pub", required=False)
-    age_rating = MultiValueField(forms.CharField(), "ar", required=False)
+    age_ratings = MultiValueField(forms.CharField(), "ar", required=False)
     years = forms.CharField(required=False)

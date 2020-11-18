@@ -1,7 +1,9 @@
 from django.test import SimpleTestCase
 
-from vgl.views import SearchResultsView
+from vgl.views.SearchResultsView import SearchResultsView
 from vgl.utils import reverse_querystring
+
+from typing import List
 
 
 class SearchViewTests(SimpleTestCase):
@@ -68,3 +70,43 @@ class SearchViewTests(SimpleTestCase):
         pages = response.context["page_range"]
         expected_pages = [1, "...", page-1, page, page+1, "...", self.NUM_PAGES]
         self.assertEqual(pages, expected_pages)
+
+
+class SearchViewFiltersTests(SimpleTestCase):
+
+    SEARCH_URL_NAME = 'vgl:search'
+
+    def do_normal_search(self, **additional_query_kwargs):
+        return self.client.get(reverse_querystring(self.SEARCH_URL_NAME,
+                                                   query_kwargs={"q": "final fantasy", **additional_query_kwargs}))
+
+    def check_filter(self, filter_name: str, filter_values: List[str], doc_field: str = ""):
+        if not doc_field:
+            doc_field = filter_name + "s"
+        response = self.do_normal_search(**{filter_name: filter_values})
+        results = response.context["results_list"]
+        self.assertGreater(len(results), 0)
+
+        for i, result in enumerate(results):
+            values_in_result = getattr(result, doc_field)
+            values_in_both = set(filter_values).intersection(values_in_result)
+            self.assertEqual(len(values_in_both), len(filter_values),
+                             msg=f"Failed for result {i} (filters: {filter_values}; {doc_field}: {values_in_result}")
+
+    def test_genres_filter(self):
+        self.check_filter("genre", ["Role-Playing", "Fighting"])
+
+    def test_themes_filter(self):
+        self.check_filter("theme", ["Sci-Fi"])
+
+    def test_franchises_filter(self):
+        self.check_filter("fran", ["Final Fantasy"], doc_field="franchises")
+
+    def test_platforms_filter(self):
+        self.check_filter("plat", ["Game Boy Advance", "PlayStation"], doc_field="platforms")
+
+    def test_developers_filter(self):
+        self.check_filter("dev", ["Square Enix", "Squaresoft"], doc_field="developers")
+
+    def test_publishers_filter(self):
+        self.check_filter("pub", ["Nintendo"], doc_field="publishers")
