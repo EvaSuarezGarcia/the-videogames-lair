@@ -1,7 +1,3 @@
-from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
-from django.utils import timezone
-from django.views.decorators.http import require_GET
 from django.views.generic import ListView
 
 from elasticsearch_dsl import connections
@@ -10,48 +6,11 @@ from elasticsearch_dsl.query import MultiMatch
 from videogames_lair_site import settings
 from vgl.documents import Game
 from vgl.forms import SearchForm
-from vgl.models import GiantBombEntity, Platform
-from vgl.utils import get_model
 
-from typing import Type
+from typing import Dict, List
 
 
 connections.create_connection(hosts=settings.ES_HOST)
-
-
-@require_GET
-def autocomplete_genre(request):
-    return _autocomplete_by_name(request, get_model("genre"))
-
-
-@require_GET
-def autocomplete_company(request):
-    return _autocomplete_by_name(request, get_model("company"))
-
-
-@require_GET
-def autocomplete_franchise(request):
-    return _autocomplete_by_name(request, get_model("franchise"))
-
-
-@require_GET
-def autocomplete_theme(request):
-    return _autocomplete_by_name(request, get_model("theme"))
-
-
-def _autocomplete_by_name(request, model: Type[GiantBombEntity]):
-    q = request.GET.get("q")
-    data = model.objects.filter(name__istartswith=q).values_list("name", flat=True)
-    json = list(data)
-    return JsonResponse(json, safe=False)
-
-
-def autocomplete_platform(request):
-    q = request.GET.get("q")
-    data = Platform.objects.filter(Q(name__istartswith=q) | Q(abbreviation__istartswith=q))\
-        .values_list("abbreviation", "name")
-    json = list(map(lambda x: "{} ({})".format(x[0], x[1]), data))
-    return JsonResponse(json, safe=False)
 
 
 class SearchResultsView(ListView):
@@ -59,22 +18,44 @@ class SearchResultsView(ListView):
     context_object_name = "results_list"
     paginate_by = 10
     total_results = 100
+    filters_names = ["genres", "themes", "franchises", "platforms", "developers", "publishers", "age_ratings"]
 
     def setup(self, request, *args, **kwargs):
         super(SearchResultsView, self).setup(request, *args, **kwargs)
         self.form = SearchForm(self.request.GET)
 
+    def _fill_filter(self, field: str, filters: Dict[str, List[str]]):
+        values_to_filter = self.form.cleaned_data.get(field)
+
+        if values_to_filter:
+            filters[field] = values_to_filter
+
+    def _fill_filters(self, fields: List[str], filters: Dict[str, List[str]]):
+        for field in fields:
+            self._fill_filter(field, filters)
+
     def get_queryset(self):
         query_text = None
+        filters = {}
+        search = Game.search()
+
         if self.form.is_valid():
             query_text = self.form.cleaned_data.get("q")
+            self._fill_filters(self.filters_names, filters)
+
+        for filter_name, filter_values in filters.items():
+            for filter_value in filter_values:
+                search = search.filter("term", **{filter_name: filter_value})
 
         if not query_text:
             return []
         query = MultiMatch(query=query_text,
                            fields=["name^3", "aliases^3", "deck^2", "description", "concepts", "genres", "themes"],
                            type="cross_fields", tie_breaker=0.3)
-        return Game.search().query(query)[:self.total_results].execute()
+
+        search = search.query(query)[:self.total_results]
+
+        return search.execute()
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
