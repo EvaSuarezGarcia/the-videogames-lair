@@ -7,4 +7,4 @@ $(document).ready(function () {
     $("#navbarMenuToggler, #dismiss, .overlay").on("click", function () {
         $(".overlay").toggleClass("overlay-active");
     });
-})
+});
