@@ -29,3 +29,15 @@
     opacity: 1;
     transition: font-size 0.2s 0s ease, opacity 0.2s 0.2s ease;
 }
+
+.irs-from, .irs-to, .irs-bar, .irs-single {
+    background-color: var(--purple) !important;
+}
+
+.irs-from::before, .irs-to::before, .irs-single::before {
+    border-top-color: var(--purple) !important;
+}
+
+.irs-handle {
+    border-color: var(--purple) !important;
+}

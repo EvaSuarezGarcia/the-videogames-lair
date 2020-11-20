@@ -18,7 +18,7 @@ class SearchResultsView(ListView):
     context_object_name = "results_list"
     paginate_by = 10
     total_results = 100
-    filters_names = ["genres", "themes", "franchises", "platforms", "developers", "publishers", "age_ratings"]
+    normal_filters_names = ["genres", "themes", "franchises", "platforms", "developers", "publishers", "age_ratings"]
 
     def setup(self, request, *args, **kwargs):
         super(SearchResultsView, self).setup(request, *args, **kwargs)
@@ -37,15 +37,23 @@ class SearchResultsView(ListView):
     def get_queryset(self):
         query_text = None
         filters = {}
+        year_range = []
         search = Game.search()
 
         if self.form.is_valid():
             query_text = self.form.cleaned_data.get("q")
-            self._fill_filters(self.filters_names, filters)
+            self._fill_filters(self.normal_filters_names, filters)
+            form_year_range = self.form.cleaned_data.get("years")
+            if form_year_range:
+                year_range = form_year_range.split(";")
 
         for filter_name, filter_values in filters.items():
             for filter_value in filter_values:
                 search = search.filter("term", **{filter_name: filter_value})
+
+        if year_range:
+            search = search.filter("range",
+                                   release_date={"gte": f"{year_range[0]}-01-01", "lte": f"{year_range[1]}-12-31"})
 
         if not query_text:
             return []

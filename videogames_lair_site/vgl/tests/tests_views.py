@@ -1,4 +1,5 @@
-from django.test import SimpleTestCase
+from django.test import TestCase
+from django.template.defaultfilters import date
 
 from vgl.views.SearchResultsView import SearchResultsView
 from vgl.utils import reverse_querystring
@@ -6,7 +7,7 @@ from vgl.utils import reverse_querystring
 from typing import List
 
 
-class SearchViewTests(SimpleTestCase):
+class SearchViewTests(TestCase):
 
     SEARCH_URL_NAME = 'vgl:search'
     NUM_PAGES = int(SearchResultsView.total_results / SearchResultsView.paginate_by)
@@ -72,7 +73,7 @@ class SearchViewTests(SimpleTestCase):
         self.assertEqual(pages, expected_pages)
 
 
-class SearchViewFiltersTests(SimpleTestCase):
+class SearchViewFiltersTests(TestCase):
 
     SEARCH_URL_NAME = 'vgl:search'
 
@@ -110,3 +111,17 @@ class SearchViewFiltersTests(SimpleTestCase):
 
     def test_publishers_filter(self):
         self.check_filter("pub", ["Nintendo"], doc_field="publishers")
+
+    def test_release_year_filter(self):
+        year_from = 1990
+        year_to = 2000
+        response = self.do_normal_search(years=f"{year_from};{year_to}")
+        results = response.context["results_list"]
+        self.assertGreater(len(results), 0)
+
+        for i, result in enumerate(results):
+            release_year = int(date(result["release_date"], "Y"))
+            self.assertGreaterEqual(release_year, year_from, msg=f"Failed for result {i}: Game year ({release_year}) "
+                                                                 f"is less than filter from-year ({year_from})")
+            self.assertLessEqual(release_year, year_to, msg=f"Failed for result {i}: Game year ({release_year}) "
+                                                            f"is greater than filter to-year ({year_to})")

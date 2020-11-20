@@ -35,7 +35,10 @@ $(document).ready(function () {
 
     $(".js-range-slider").ionRangeSlider({
         type: "double",
-        skin: "round"
+        skin: "round",
+        min: 1971,
+        max: 2020,
+        prettify: (year) => year
     });
 
     $(".basic-autocomplete").autoComplete({minLength: 1, preventEnter: true});

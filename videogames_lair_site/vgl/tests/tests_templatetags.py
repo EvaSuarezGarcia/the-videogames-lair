@@ -1,10 +1,10 @@
 from django.template import Context, Template
-from django.test import SimpleTestCase
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
 
 
-class PageQuerystringTests(SimpleTestCase):
+class PageQuerystringTests(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
