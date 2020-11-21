@@ -112,6 +112,9 @@ class SearchViewFiltersTests(TestCase):
     def test_publishers_filter(self):
         self.check_filter("pub", ["Nintendo"], doc_field="publishers")
 
+    def test_age_ratings_filter(self):
+        self.check_filter("ar", ["PEGI: 3+"], doc_field="age_ratings")
+
     def test_release_year_filter(self):
         year_from = 1990
         year_to = 2000

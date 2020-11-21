@@ -38,19 +38,27 @@
             </div>
         </div>
         <div class="form-row">
-            <div class="form-group col-6 col-md-4 col-lg-6 ml-md-auto">
+            <div class="form-group col-6 col-md-4 col-lg-6 ml-md-auto mb-0">
                 <label for="input-age-rating-system">Age Ratings</label>
-                <select id="input-age-rating-system" name="ar-sys" class="form-control mb-1 advanced-search">
+                <select id="input-age-rating-system" name="ar-sys" class="form-control mb-1 advanced-search" onchange="updateAgeRatings(this)">
                     <option selected>System</option>
-                    <option>Dummy option</option>
+                    {% for system in age_ratings %}
+                        <option>{{ system }}</option>
+                    {% endfor %}
                 </select>
             </div>
-            <div class="form-group col-6 col-md-4 col-lg-6 mr-md-auto">
+            <div class="form-group col-6 col-md-4 col-lg-6 mr-md-auto mb-0">
                 <label class="text-white">Rating</label>
-                <select class="form-control advanced-search" name="ar" disabled>
+                <select id="input-age-rating" class="form-control advanced-search" name="ar" onchange="addAgeRatingFilter(this)" disabled>
                     <option selected>Rating</option>
-                    <option>Dummy option</option>
+                    {% for system, age_rating_list in age_ratings.items %}
+                        {% for age_rating in age_rating_list %}
+                            <option data-option="{{ system }}">{{ age_rating }}</option>
+                        {% endfor %}
+                    {% endfor %}
                 </select>
+            </div>
+            <div id="age-rating-filters-container" class="col-12 mb-3">
             </div>
         </div>
         <div class="form-group col-md-8 col-lg-12 p-0 mx-auto">

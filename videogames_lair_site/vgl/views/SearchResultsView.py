@@ -6,6 +6,7 @@ from elasticsearch_dsl.query import MultiMatch
 from videogames_lair_site import settings
 from vgl.documents import Game
 from vgl.forms import SearchForm
+from vgl.models import AgeRating
 
 from typing import Dict, List
 
@@ -90,5 +91,17 @@ class SearchResultsView(ListView):
             page_range.extend(["...", paginator.num_pages])
 
         context["page_range"] = page_range
+
+        age_ratings = {}
+        for age_rating in AgeRating.objects.all().order_by("name"):
+            system, rating = age_rating.name.split(": ")
+            age_ratings.setdefault(system, set())
+            age_ratings[system].add(rating)
+
+        sorted_age_ratings = {}
+        for system, age_rating_set in age_ratings.items():
+            sorted_age_ratings[system] = sorted(age_rating_set, key=lambda x: (len(x), x.lower()))
+
+        context["age_ratings"] = sorted_age_ratings
 
         return context
