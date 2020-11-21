@@ -35,6 +35,7 @@ def _autocomplete_by_name(request, model: Type[GiantBombEntity]):
     return JsonResponse(json, safe=False)
 
 
+@require_GET
 def autocomplete_platform(request):
     q = request.GET.get("q")
     data = Platform.objects.filter(Q(name__istartswith=q) | Q(abbreviation__istartswith=q))\

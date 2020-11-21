@@ -5,4 +5,5 @@ django-multivalueformfield==0.0.2
 django-sequences==2.5
 elasticsearch-dsl>=7.0.0,<8.0.0
 elasticsearch<8.0.0,>=7.0.0
+model-bakery>=1.2.1
 unittest-xml-reporting==3.0.4

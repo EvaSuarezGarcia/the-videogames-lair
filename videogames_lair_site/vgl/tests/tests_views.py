@@ -1,10 +1,15 @@
+from django.db.models import Model
 from django.test import TestCase
 from django.template.defaultfilters import date
 
-from vgl.views.SearchResultsView import SearchResultsView
-from vgl.utils import reverse_querystring
+from model_bakery import baker
+from model_bakery.recipe import seq
 
-from typing import List
+from vgl import models
+from vgl.utils import reverse_querystring
+from vgl.views.SearchResultsView import SearchResultsView
+
+from typing import List, Type
 
 
 class SearchViewTests(TestCase):
@@ -128,3 +133,41 @@ class SearchViewFiltersTests(TestCase):
                                                                  f"is less than filter from-year ({year_from})")
             self.assertLessEqual(release_year, year_to, msg=f"Failed for result {i}: Game year ({release_year}) "
                                                             f"is greater than filter to-year ({year_to})")
+
+
+class AutocompleteTests(TestCase):
+
+    query = "foo"
+
+    def check_autocomplete(self, model: Type[Model], url_name: str):
+        baker.make(model, name=seq(self.query), _quantity=3)
+        baker.make(model, name=seq("bar"), _quantity=2)
+
+        response = self.client.get(reverse_querystring(url_name, query_kwargs={"q": self.query})).json()
+        self.assertEqual(len(response), 3)
+        self.assertTrue(all(map(lambda x: x.startswith(self.query), response)))
+
+    def test_autocomplete_genre(self):
+        self.check_autocomplete(models.Genre, "vgl:autocomplete_genre")
+
+    def test_autocomplete_company(self):
+        self.check_autocomplete(models.Company, "vgl:autocomplete_company")
+
+    def test_autocomplete_franchise(self):
+        self.check_autocomplete(models.Franchise, "vgl:autocomplete_franchise")
+
+    def test_autocomplete_theme(self):
+        self.check_autocomplete(models.Theme, "vgl:autocomplete_theme")
+
+    def test_autocomplete_platform(self):
+        baker.make(models.Platform, name=seq(self.query), abbreviation=seq(f"not {self.query}"), _quantity=3)
+        baker.make(models.Platform, name=seq(f"not {self.query}"), abbreviation=seq(self.query), _quantity=2)
+        baker.make(models.Platform, name=seq("bar"), abbreviation=seq("bar"))
+
+        response = self.client.get(reverse_querystring("vgl:autocomplete_platform", query_kwargs={"q": self.query}))\
+            .json()
+
+        self.assertEqual(len(response), 5)
+        self.assertTrue(all(map(lambda x: len(x.split(" (")) == 2, response)))
+        self.assertTrue(all(map(lambda x: x.split(" ")[0].startswith(self.query)
+                                          or x.split(" ")[1].startswith(self.query), response)))
