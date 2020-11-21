@@ -84,4 +84,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
     <script src="{% static 'vgl/js/search.js' %}"></script>
+    {% if year_from and year_to %}
+        <script>setYearsSlider({{ year_from }}, {{ year_to }})</script>
+    {% else %}
+        <script>setYearsSlider()</script>
+    {% endif %}
 {% endblock%}

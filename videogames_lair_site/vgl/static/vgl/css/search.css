@@ -41,3 +41,8 @@
 .irs-handle {
     border-color: var(--purple) !important;
 }
+
+.bootstrap-autocomplete {
+    max-height: 15rem;
+    overflow: auto;
+}

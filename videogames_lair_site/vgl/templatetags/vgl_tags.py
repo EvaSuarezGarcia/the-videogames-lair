@@ -9,3 +9,15 @@ def page_querystring(context, page: int, page_param: str = "page"):
     new_request_params[page_param] = page
 
     return new_request_params.urlencode()
+
+
+@register.inclusion_tag("vgl/advanced_filter.html")
+def advanced_filter(name: str, visible_value: str, hidden_value: str = None):
+    if not hidden_value:
+        hidden_value = visible_value
+
+    return {
+        "name": name,
+        "visible_value": visible_value,
+        "hidden_value": hidden_value
+    }

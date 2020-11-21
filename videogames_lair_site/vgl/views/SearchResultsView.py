@@ -6,7 +6,7 @@ from elasticsearch_dsl.query import MultiMatch
 from videogames_lair_site import settings
 from vgl.documents import Game
 from vgl.forms import SearchForm
-from vgl.models import AgeRating
+from vgl.models import AgeRating, Platform
 
 from typing import Dict, List
 
@@ -103,5 +103,17 @@ class SearchResultsView(ListView):
             sorted_age_ratings[system] = sorted(age_rating_set, key=lambda x: (len(x), x.lower()))
 
         context["age_ratings"] = sorted_age_ratings
+
+        context["open_filters"] = self.request.GET.get("open", False)
+
+        # Set platform filters
+        platforms = self.form.cleaned_data.get("platforms")
+        context["platform_filters"] = list(Platform.objects.filter(name__in=platforms).values("name", "abbreviation"))
+
+        # Set year filters
+        years = self.form.cleaned_data.get("years")
+        if years:
+            context["year_from"] = years.split(";")[0]
+            context["year_to"] = years.split(";")[1]
 
         return context

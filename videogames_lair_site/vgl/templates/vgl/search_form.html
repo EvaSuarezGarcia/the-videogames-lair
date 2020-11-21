@@ -1,40 +1,48 @@
+{% load vgl_tags %}
+
 <form action="{% url "vgl:search" %}" method="get" class="w-100 w-lg-75 w-xl-50 my-3 my-md-4 mx-md-auto">
     <div class="form-group input-group col-md-8 p-0 col-lg-12 mx-auto">
         <input name="q" class="form-control text-truncate" maxlength="200" type="search" placeholder="Your keywords, eg &quot;final fantasy&quot;" {% if form.cleaned_data.q %}value="{{ form.cleaned_data.q }}" {% endif %}aria-label="Search" required>
         <div class="input-group-append btn-group">
             <button class="btn btn-info" type="submit"><span class="fas fa-search"></span></button>
-            <button id="advanced-filters-btn" class="btn btn-info" type="button" onclick="toggleAdvancedFilters(this)"><span id="advanced-filters-text">Advanced Filters </span><span class="fas fa-caret-down"></span></button>
+            <button id="advanced-filters-btn" class="btn btn-info" type="button" onclick="toggleAdvancedFilters(this)"><span id="advanced-filters-text">Advanced Filters </span><span class="fas {% if open_filters %}fa-caret-up{% else %}fa-caret-down{% endif %}"></span></button>
         </div>
     </div>
-    <div id="advanced-filters" class="collapsed mt-2 mb-4">
+    <div id="advanced-filters" class="{% if not open_filters %}collapsed {% endif %}mt-2 mb-4">
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="genre-input">Genres</label>
                 <input id="genre-input" type="text" name="genre" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_genre" %}" autocomplete="off">
+                {% for genre in form.cleaned_data.genres %}{% advanced_filter "genre" genre %}{% endfor %}
             </div>
             <div class="form-group col-md-6">
                 <label for="theme-input">Themes</label>
                 <input id="theme-input" type="text" name="theme" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_theme" %}" autocomplete="off">
+                {% for theme in form.cleaned_data.themes %}{% advanced_filter "theme" theme %}{% endfor %}
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="franchise-input">Franchises</label>
                 <input id="franchise-input" type="text" name="fran" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_franchise" %}" autocomplete="off">
+                {% for franchise in form.cleaned_data.franchises %}{% advanced_filter "fran" franchise %}{% endfor %}
             </div>
             <div class="form-group col-md-6">
                 <label for="platform-input">Platforms</label>
                 <input id="platform-input" type="text" name="plat" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_platform" %}" autocomplete="off">
+                {% for platform in platform_filters %}{% advanced_filter "plat" platform.abbreviation platform.name %}{% endfor %}
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="developer-input">Developers</label>
                 <input id="developer-input" type="text" name="dev" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_company" %}" autocomplete="off">
+                {% for developer in form.cleaned_data.developers %}{% advanced_filter "dev" developer %}{% endfor %}
             </div>
             <div class="form-group col-md-6">
                 <label for="publisher-input">Publishers</label>
                 <input id="publisher-input" type="text" name="pub" class="form-control mb-1 advanced-search basic-autocomplete" data-url="{% url "vgl:autocomplete_company" %}" autocomplete="off">
+                {% for publisher in form.cleaned_data.publishers %}{% advanced_filter "pub" publisher %}{% endfor %}
             </div>
         </div>
         <div class="form-row">
@@ -58,7 +66,8 @@
                     {% endfor %}
                 </select>
             </div>
-            <div id="age-rating-filters-container" class="col-12 mb-3">
+            <div id="age-rating-filters-container" class="col-12 col-md-8 col-lg-12 mx-auto mb-3">
+                {% for age_rating in form.cleaned_data.age_ratings %}{% advanced_filter "ar" age_rating %}{% endfor %}
             </div>
         </div>
         <div class="form-group col-md-8 col-lg-12 p-0 mx-auto">

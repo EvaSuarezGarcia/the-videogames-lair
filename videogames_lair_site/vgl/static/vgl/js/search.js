@@ -3,14 +3,21 @@ function toggleAdvancedFilters(button) {
     $(button).find(".fas").toggleClass("fa-rotate-180");
 }
 
-function createFilter(hiddenInput, visibleValue) {
+function createFilter(visibleValue, hiddenValue, name) {
+    const hiddenInput = document.createElement("input");
+    hiddenInput.removeAttribute("id");
+    hiddenInput.type = "hidden";
+    hiddenInput.name = name;
+    hiddenInput.value = hiddenValue;
+
     const span = document.createElement("span");
     span.innerText = visibleValue;
-    span.classList.add("bg-info", "text-white", "rounded-pill", "px-2", "mt-1", "mr-1", "d-inline-block");
+    span.classList.add("bg-info", "text-white", "rounded-pill", "px-2", "mt-1", "mr-2", "d-inline-block");
     span.appendChild(hiddenInput);
 
     const close = document.createElement("button");
     close.type = "button";
+    close.setAttribute("onclick", "this.parentNode.remove()")
     close.classList.add("close", "text-white", "ml-1", "line-height-inherit", "font-weight-inherit",
         "font-size-inherit");
     close.setAttribute("aria-label", "Close");
@@ -24,11 +31,7 @@ function createFilter(hiddenInput, visibleValue) {
 }
 
 function addFilter(originalInput, visibleValue, hiddenValue) {
-    const hiddenInput = originalInput.cloneNode();
-    hiddenInput.type = "hidden";
-    hiddenInput.value = hiddenValue;
-
-    const span = createFilter(hiddenInput, visibleValue);
+    const span = createFilter(visibleValue, hiddenValue, originalInput.name);
 
     originalInput.parentNode.appendChild(span);
     originalInput.value = "";
@@ -57,29 +60,60 @@ function addAgeRatingFilter(select) {
     const system = systemSelect.value;
     const fullAgeRating = `${system}: ${ageRating}`;
 
-    const hiddenInput = document.createElement("input");
-    hiddenInput.type = "hidden";
-    hiddenInput.value = fullAgeRating;
-    hiddenInput.name = select.name;
-
-    const span = createFilter(hiddenInput, fullAgeRating);
+    const span = createFilter(fullAgeRating, fullAgeRating, select.name);
 
     const container = document.getElementById("age-rating-filters-container");
     container.appendChild(span);
 }
 
-$(document).ready(function () {
-    $("form").submit(function () {
-        $(".advanced-search:not([type=hidden])").remove();
-    });
+function setYearsSlider(currentMin, currentMax) {
+    const min = 1971;
+    const max = 2020;
+
+    if (!currentMin){
+        currentMin = min;
+    }
+
+    if (!currentMax) {
+        currentMax = max;
+    }
+
+    console.log(currentMin)
+    console.log(currentMax)
 
     $(".js-range-slider").ionRangeSlider({
+        type: "double",
+        skin: "round",
+        min: min,
+        max: max,
+        from: currentMin,
+        to: currentMax,
+        prettify: (year) => year
+    });
+}
+
+$(document).ready(function () {
+    $("form").submit(function () {
+        if (($("#advanced-filters").hasClass("collapsed"))) {
+            // Don't send filters at all
+            $(".advanced-search").removeAttr("name");
+        } else {
+            $(".advanced-search:not([type=hidden])").removeAttr("name");
+            const input = document.createElement("input");
+            input.name = "open";
+            input.value = "true";
+            input.type = "hidden";
+            document.getElementById("advanced-filters").appendChild(input);
+        }
+    });
+
+    /*$(".js-range-slider").ionRangeSlider({
         type: "double",
         skin: "round",
         min: 1971,
         max: 2020,
         prettify: (year) => year
-    });
+    });*/
 
     $(".basic-autocomplete").autoComplete({minLength: 1, preventEnter: true});
 
