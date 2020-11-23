@@ -1,40 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>The Videogame's Lair | Search Results</title>
-</head>
-<body>
-<h1>Search Results</h1>
-<form action="{% url 'vgl:search' %}" method="get">
-    <input name="q" type="text" placeholder="Search...">
-    <input type="submit" value="Search">
-</form>
-{% if results_list %}
-    <ul>
-    {% for game in results_list %}
-        <li>
-            {{ game.name }}
-        </li>
-    {% endfor %}
-    </ul>
-    <div>
-        <span>
-            {% if page_obj.has_previous %}
-                <a href="?q={{ query|urlencode }}&page=1">&laquo; first</a>
-                <a href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">previous</a>
-            {% endif %}
-            <span>
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-            </span>
-            {% if page_obj.has_next %}
-                <a href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">next</a>
-                <a href="?q={{ query|urlencode }}&page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-            {% endif %}
-        </span>
-    </div>
-{% else %}
-    <p>No results.</p>
-{% endif %}
-</body>
-</html>
+{% extends "vgl/base.html" %}
+
+{% block title %}Explore{% endblock %}
+
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static "vgl/css/search.css" %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"/>
+{% endblock css %}
+
+{% block content %}
+    <section class="rounded-lg mx-auto">
+    <h3 class="d-none d-sm-block">Let's dive into the sea of games, shall we?</h3>
+    <h5 class="d-sm-none">Let's dive into the sea of games, shall we?</h5>
+
+    {# Search form #}
+    {% include "vgl/search_form.html" %}
+
+    {# Search results #}
+    {% if form.cleaned_data.q %}
+        <div {% if results_list %}id="results-list" class="row row-cols-1 row-cols-xl-2"{% else %}id="no-results" class="text-center text-secondary text-size-1-25-rem text-size-sm-1-5-rem"{% endif %}>
+        {% for game in results_list %}
+            <div class="col mb-4">
+                <div class="card h-100 shadow">
+                    <div class="row no-gutters h-100">
+                        {# Game image: top on mobile, left on larger devices #}
+                        <div class="col-md-4 bg-light d-flex align-items-center rounded-md-left">
+                            {% with "vgl/img_games/"|add:game.image as game_image %}
+                                <img src="{% static game_image %}" class="card-img-top rounded-md" alt="'{{ game.name }}' box art">
+                            {% endwith %}
+                        </div>
+                        {# Card content: bottom on mobile, right on larger devices #}
+                        <div class="col-md-8 border-md-left">
+                            {# Game rating #}
+                            <div class="card-header border-top border-top-md-0 text-size-1-25-rem">
+                                <span class="far fa-star"></span>
+                                <span class="far fa-star"></span>
+                                <span class="far fa-star"></span>
+                                <span class="far fa-star"></span>
+                                <span class="far fa-star"></span>
+                                <strong class="float-right">2.5</strong>
+                            </div>
+                            {# Basic game info #}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ game.name }} ({{ game.release_date|date:"Y" }})</h5>
+                                {% if game.aliases %}
+                                    <h6 class="card-subtitle mb-2 text-muted">Also known as: {{ game.aliases|join:", " }}</h6>
+                                {% endif %}
+                                <p class="card-text">{{ game.deck }}</p>
+                            </div>
+                            {# Metadata #}
+                            {% if game.genres or game.platforms or game.themes %}
+                            <ul class="list-group list-group-flush border-top rounded-bottom">
+                                {% if game.genres %}
+                                <li class="list-group-item"><strong>Genre{{ game.genres|pluralize }}: </strong>{{ game.genres|join:", " }}</li>
+                                {% endif %}
+                                {% if game.platforms %}
+                                <li class="list-group-item"><strong>Platform{{ game.platforms|pluralize }}: </strong>{{ game.platforms|join:", " }}</li>
+                                {% endif %}
+                                {% if game.themes %}
+                                <li class="list-group-item"><strong>Theme{{ game.themes|pluralize }}: </strong>{{ game.themes|join:", " }}</li>
+                                {% endif %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            Sorry, we did not find any results <span class="text-nowrap">:(</span>
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    {# Pagination #}
+    {% if results_list %}
+        {% include "vgl/pagination.html" with mobile=True %}
+        {% include "vgl/pagination.html" %}
+    {% endif %}
+
+    </section>
+{% endblock %}
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
+    <script src="{% static 'vgl/js/search.js' %}"></script>
+    {% if year_from and year_to %}
+        <script>setYearsSlider({{ year_from }}, {{ year_to }})</script>
+    {% else %}
+        <script>setYearsSlider()</script>
+    {% endif %}
+{% endblock%}
