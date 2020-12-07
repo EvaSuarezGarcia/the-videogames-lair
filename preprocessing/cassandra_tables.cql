@@ -72,7 +72,6 @@ CREATE TABLE game_themes (
 
 CREATE TABLE steam_games (
     steam_id int,
-    game_name text,
     p20 float,
     p40 float,
     p60 float,
@@ -87,4 +86,11 @@ CREATE TABLE steam_playtimes (
     steam_id int,
     playtime int,
     PRIMARY KEY (user_id, steam_id)
+);
+
+CREATE TABLE recommendations (
+    user_id int,
+    game_id int,
+    rank int,
+    PRIMARY KEY (user_id, rank)
 );

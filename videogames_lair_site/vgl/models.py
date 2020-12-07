@@ -76,3 +76,10 @@ class Platform(GiantBombEntity):
 
 class Theme(GiantBombEntity):
     pass
+
+
+class GameStats(models.Model):
+    game_id = models.PositiveIntegerField(primary_key=True)
+    popularity = models.PositiveIntegerField(default=0)
+    players = models.PositiveIntegerField(default=0)
+    mean_rating = models.FloatField(default=0)
