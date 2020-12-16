@@ -108,7 +108,7 @@ WSGI_APPLICATION = 'videogames_lair_site.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 use_sqlite_cases = ['test']
 use_sqlite = any(use_sqlite_case in sys.argv for use_sqlite_case in use_sqlite_cases) \
-             or get_secret('USE_SQLITE', True)
+             or get_secret('USE_SQLITE', optional=True)
 
 # If we are running tests, use SQLite in memory. Else, use normal DB
 if use_sqlite:
