@@ -3,19 +3,26 @@ from django.db import models, transaction
 from sequences import Sequence
 
 
+# Initial value is the first unused value from the original sequence that was not managed by Django
+user_ids_seq = Sequence("user_ids", initial_value=13577732)
+
+
 class User(AbstractUser):
     # Remove unneeded fields
     first_name = None
     last_name = None
+    als_user_id = models.PositiveIntegerField(unique=True)
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if not self.als_user_id:
+                self.als_user_id = user_ids_seq.get_next_value()
+            super().save(*args, **kwargs)
 
     def __str__(self):
         if self.email:
             return "{} ({})".format(self.username, self.email)
         return "{}".format(self.username)
-
-
-# Initial value is the first unused value from the original sequence that was not managed by Django
-user_ids_seq = Sequence("user_ids", initial_value=13577732)
 
 
 class ALSUser(models.Model):

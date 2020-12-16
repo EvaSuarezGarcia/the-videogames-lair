@@ -26,10 +26,12 @@ if os.path.isfile(secrets_file):
         secrets = json.load(f)
 
 
-def get_secret(setting: str, optional: bool = False):
+def get_secret(setting: str, is_list: bool = False, optional: bool = False):
     try:
         if secrets:
             return secrets[setting]
+        elif is_list:
+            return json.loads(os.environ[setting])
         else:
             return os.environ[setting]
     except KeyError:
@@ -137,6 +139,12 @@ else:
             }
         }
     }
+
+# Cassandra settings
+CASSANDRA_HOST = get_secret("CASSANDRA_HOST", is_list=True)
+CASSANDRA_USER = get_secret("CASSANDRA_USER")
+CASSANDRA_PASSWORD = get_secret("CASSANDRA_PASSWORD")
+CASSANDRA_KEYSPACE = "videogames_lair"
 
 # Test settings
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"

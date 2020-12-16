@@ -1,12 +1,11 @@
 {% extends "vgl/game_list.html" %}
 
-{% block title %}Explore{% endblock %}
+{% block title %}Recommendations{% endblock %}
 
 {% block list_title %}
+    {# TODO change #}
     <h3 class="d-none d-sm-block">Let's dive into the sea of games, shall we?</h3>
     <h5 class="d-sm-none">Let's dive into the sea of games, shall we?</h5>
 {% endblock list_title %}
 
-{% block empty_list %}
-    Sorry, we did not find any results <span class="text-nowrap">:(</span>
-{% endblock empty_list %}
+{% block empty_list %}We're still crunching your data!{% endblock %}
