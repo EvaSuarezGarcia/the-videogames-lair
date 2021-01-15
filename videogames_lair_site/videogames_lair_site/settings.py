@@ -26,10 +26,12 @@ if os.path.isfile(secrets_file):
         secrets = json.load(f)
 
 
-def get_secret(setting: str, optional: bool = False):
+def get_secret(setting: str, is_list: bool = False, optional: bool = False):
     try:
         if secrets:
             return secrets[setting]
+        elif is_list:
+            return json.loads(os.environ[setting])
         else:
             return os.environ[setting]
     except KeyError:
@@ -106,7 +108,7 @@ WSGI_APPLICATION = 'videogames_lair_site.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 use_sqlite_cases = ['test']
 use_sqlite = any(use_sqlite_case in sys.argv for use_sqlite_case in use_sqlite_cases) \
-             or get_secret('USE_SQLITE', True)
+             or get_secret('USE_SQLITE', optional=True)
 
 # If we are running tests, use SQLite in memory. Else, use normal DB
 if use_sqlite:
@@ -137,6 +139,12 @@ else:
             }
         }
     }
+
+# Cassandra settings
+CASSANDRA_HOST = get_secret("CASSANDRA_HOST", is_list=True)
+CASSANDRA_USER = get_secret("CASSANDRA_USER")
+CASSANDRA_PASSWORD = get_secret("CASSANDRA_PASSWORD")
+CASSANDRA_KEYSPACE = "videogames_lair"
 
 # Test settings
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"

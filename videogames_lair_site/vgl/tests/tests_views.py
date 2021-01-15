@@ -1,13 +1,18 @@
+from collections import namedtuple
+from unittest import mock
+
 from django.db.models import Model
 from django.test import TestCase
 from django.template.defaultfilters import date
+from django.urls import reverse
 
 from model_bakery import baker
 from model_bakery.recipe import seq
 
 from vgl import models
+from vgl.cassandra import CassandraConnectionManager
 from vgl.utils import reverse_querystring
-from vgl.views.SearchResultsView import SearchResultsView
+from vgl.views.game_lists import SearchResultsView, RecommendationsView
 
 from typing import List, Type
 
@@ -15,7 +20,7 @@ from typing import List, Type
 class SearchViewTests(TestCase):
 
     SEARCH_URL_NAME = 'vgl:search'
-    NUM_PAGES = int(SearchResultsView.total_results / SearchResultsView.paginate_by)
+    NUM_PAGES = int(SearchResultsView.max_results / SearchResultsView.paginate_by)
 
     def do_normal_search(self, **additional_query_kwargs):
         return self.client.get(reverse_querystring(self.SEARCH_URL_NAME,
@@ -26,7 +31,7 @@ class SearchViewTests(TestCase):
         A normal search returns a page with results. Results are rendered in an element with ID "results-list".
         """
         response = self.do_normal_search()
-        self.assertGreaterEqual(len(response.context["results_list"]), 1)
+        self.assertGreaterEqual(len(response.context["game_list"]), 1)
         self.assertContains(response, "id=\"results-list\"")
 
     def test_search_no_results(self):
@@ -90,7 +95,7 @@ class SearchViewFiltersTests(TestCase):
         if not doc_field:
             doc_field = filter_name + "s"
         response = self.do_normal_search(**{filter_name: filter_values})
-        results = response.context["results_list"]
+        results = response.context["game_list"]
         self.assertGreater(len(results), 0)
 
         for i, result in enumerate(results):
@@ -124,7 +129,7 @@ class SearchViewFiltersTests(TestCase):
         year_from = 1990
         year_to = 2000
         response = self.do_normal_search(years=f"{year_from};{year_to}")
-        results = response.context["results_list"]
+        results = response.context["game_list"]
         self.assertGreater(len(results), 0)
 
         for i, result in enumerate(results):
@@ -171,3 +176,41 @@ class AutocompleteTests(TestCase):
         self.assertTrue(all(map(lambda x: len(x.split(" (")) == 2, response)))
         self.assertTrue(all(map(lambda x: x.split(" ")[0].startswith(self.query)
                                           or x.split(" ")[1].startswith(self.query), response)))
+
+
+class RecommendationsViewTests(TestCase):
+
+    recommendation = namedtuple("recommendation", "game_id")
+    RECOMMENDATIONS_URL = reverse("vgl:recommendations")
+    user = None
+    sample_game_ids = [6, 18, 23, 34, 37, 52]  # These games exist in ES
+    sample_recommendations = [recommendation(game_id=61), recommendation(game_id=65),
+                              recommendation(game_id=68), recommendation(game_id=82)]  # These games also exist
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make(models.User)
+        baker.make(models.GameStats, game_id=iter(cls.sample_game_ids), _quantity=len(cls.sample_game_ids))
+        
+    @mock.patch.object(CassandraConnectionManager, "get_recommendations_for_user", return_value=sample_recommendations)
+    def test_custom_recommendations(self, mock_cassandra_recommendations):
+        self.client.force_login(self.user)
+        response = self.client.get(self.RECOMMENDATIONS_URL)
+
+        most_popular_games = models.GameStats.objects.order_by("-popularity")[:RecommendationsView.max_results]
+        most_popular_games = [game.game_id for game in most_popular_games]
+        recommended_games = [game.vgl_id for game in response.context["game_list"]]
+        self.assertGreater(len(recommended_games), 0)
+        self.assertNotEqual(most_popular_games, recommended_games)
+
+    def test_popular_recommendations(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.RECOMMENDATIONS_URL)
+
+        self.assertFalse(response.context["has_custom_recommendations"])
+
+        most_popular_games = models.GameStats.objects.order_by("-popularity")[:RecommendationsView.max_results]
+        most_popular_games = [game.game_id for game in most_popular_games]
+        recommended_games = [game.vgl_id for game in response.context["game_list"]]
+        self.assertGreater(len(recommended_games), 0)
+        self.assertEqual(most_popular_games, recommended_games)

@@ -1,13 +1,22 @@
 {% load vgl_tags %}
 
-<form action="{% url "vgl:search" %}" method="get" class="w-100 w-lg-75 w-xl-50 my-3 my-md-4 mx-md-auto">
-    <div class="form-group input-group col-md-8 p-0 col-lg-12 mx-auto">
-        <input name="q" class="form-control text-truncate" maxlength="200" type="search" placeholder="Your keywords, eg &quot;final fantasy&quot;" {% if form.cleaned_data.q %}value="{{ form.cleaned_data.q }}" {% endif %}aria-label="Search" required>
-        <div class="input-group-append btn-group">
-            <button class="btn btn-info" type="submit"><span class="fas fa-search"></span></button>
-            <button id="advanced-filters-btn" class="btn btn-info" type="button" onclick="toggleAdvancedFilters(this)"><span id="advanced-filters-text">Advanced Filters </span><span class="fas {% if open_filters %}fa-caret-up{% else %}fa-caret-down{% endif %}"></span></button>
+
+{% resolve_url_name request.path_info as current_url %}
+
+<form action="{% url current_url %}" method="get" class="w-100 w-lg-75 w-xl-50 my-3 my-md-4 mx-md-auto">
+    {% if only_filters %}
+        <div class="d-flex justify-content-center">
+            <button id="advanced-filters-btn" class="btn btn-link" type="button" onclick="toggleAdvancedFilters(this)"><span>Advanced Filters </span><span class="fas {% if open_filters %}fa-caret-up{% else %}fa-caret-down{% endif %}"></span></button>
         </div>
-    </div>
+    {% else %}
+        <div class="form-group input-group col-md-8 p-0 col-lg-12 mx-auto">
+            <input name="q" class="form-control text-truncate" maxlength="200" type="search" placeholder="Your keywords, eg &quot;final fantasy&quot;" {% if form.cleaned_data.q %}value="{{ form.cleaned_data.q }}" {% endif %}aria-label="Search" required>
+            <div class="input-group-append btn-group">
+                <button class="btn btn-info" type="submit"><span class="fas fa-search"></span></button>
+                <button id="advanced-filters-btn" class="btn btn-info" type="button" onclick="toggleAdvancedFilters(this)"><span id="advanced-filters-text">Advanced Filters </span><span class="fas {% if open_filters %}fa-caret-up{% else %}fa-caret-down{% endif %}"></span></button>
+            </div>
+        </div>
+    {% endif %}
     <div id="advanced-filters" class="{% if not open_filters %}collapsed {% endif %}mt-2 mb-4">
         <div class="form-row">
             <div class="form-group col-md-6">
@@ -76,7 +85,7 @@
         </div>
         <div class="d-flex justify-content-center">
             <button type="reset" class="btn btn-light border">Clear Filters</button>
-            <button type="submit" class="btn btn-info ml-3">Search</button>
+            <button type="submit" class="btn btn-info ml-3">{% if only_filters %}Filter{% else %}Search{% endif %}</button>
         </div>
     </div>
 </form>

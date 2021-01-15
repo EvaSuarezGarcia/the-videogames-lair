@@ -107,14 +107,6 @@ $(document).ready(function () {
         }
     });
 
-    /*$(".js-range-slider").ionRangeSlider({
-        type: "double",
-        skin: "round",
-        min: 1971,
-        max: 2020,
-        prettify: (year) => year
-    });*/
-
     $(".basic-autocomplete").autoComplete({minLength: 1, preventEnter: true});
 
     $(".basic-autocomplete:not(#platform-input)").on("autocomplete.select", function (event, value) {
@@ -129,4 +121,10 @@ $(document).ready(function () {
 
         addFilter(this, platformAbbreviation, platformName);
     });
+
+    /* If filters were open, collapse them to make the results more visible */
+    let advanced_filters = $("#advanced-filters")
+    if (!advanced_filters.hasClass("collapsed")) {
+        setTimeout(() => toggleAdvancedFilters($("#advanced-filters-btn")), 500);
+    }
 });
