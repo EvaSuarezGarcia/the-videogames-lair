@@ -1,9 +1,12 @@
 {% load vgl_tags %}
 
-<form action="{% url "vgl:search" %}" method="get" class="w-100 w-lg-75 w-xl-50 my-3 my-md-4 mx-md-auto">
+
+{% resolve_url_name request.path_info as current_url %}
+
+<form action="{% url current_url %}" method="get" class="w-100 w-lg-75 w-xl-50 my-3 my-md-4 mx-md-auto">
     {% if only_filters %}
         <div class="d-flex justify-content-center">
-            <button class="btn btn-link" type="button" onclick="toggleAdvancedFilters(this)"><span>Advanced Filters </span><span class="fas {% if open_filters %}fa-caret-up{% else %}fa-caret-down{% endif %}"></span></button>
+            <button id="advanced-filters-btn" class="btn btn-link" type="button" onclick="toggleAdvancedFilters(this)"><span>Advanced Filters </span><span class="fas {% if open_filters %}fa-caret-up{% else %}fa-caret-down{% endif %}"></span></button>
         </div>
     {% else %}
         <div class="form-group input-group col-md-8 p-0 col-lg-12 mx-auto">

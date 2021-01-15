@@ -1,9 +1,15 @@
 from django.apps import apps
+from django.db.models import Model
 from django.urls import reverse
 from django.utils.http import urlencode
 
+from typing import Type, List
 
-def reverse_querystring(view, urlconf=None, args=None, kwargs=None, current_app=None, query_kwargs=None):
+from vgl.documents import Game
+from vgl.models import GameStats
+
+
+def reverse_querystring(view, urlconf=None, args=None, kwargs=None, current_app=None, query_kwargs=None) -> str:
     """
     Custom reverse to handle query strings.
 
@@ -21,5 +27,15 @@ def reverse_querystring(view, urlconf=None, args=None, kwargs=None, current_app=
     return base_url
 
 
-def get_model(model_name: str):
+def get_model(model_name: str) -> Type[Model]:
     return apps.get_model(app_label="vgl", model_name=model_name)
+
+
+def add_stats_to_games(games: List[Game]) -> None:
+    for game in games:
+        stats = {}
+        try:
+            stats = GameStats.objects.get(game_id=game.vgl_id)
+        except GameStats.DoesNotExist:
+            pass
+        game.stats = stats

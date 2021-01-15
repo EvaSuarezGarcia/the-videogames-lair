@@ -3,6 +3,8 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
 
+from vgl.templatetags.vgl_tags import resolve_url_name
+
 
 class PageQuerystringTests(TestCase):
 
@@ -39,3 +41,12 @@ class PageQuerystringTests(TestCase):
         """
         rendered_template = self.render_tag(7, page=[1, 2])
         self.assertHTMLEqual(self.expected_html, rendered_template)
+
+
+class ResolveUrlNameTests(TestCase):
+
+    def test_resolve_url_name(self):
+        expected_name = "vgl:recommendations"
+        url = reverse(expected_name)
+
+        self.assertEqual(expected_name, resolve_url_name(url))

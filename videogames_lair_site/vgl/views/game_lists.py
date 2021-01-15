@@ -1,14 +1,16 @@
 from typing import Dict, List
 
-from cassandra.auth import PlainTextAuthProvider
-from cassandra.cluster import Cluster
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
-from elasticsearch_dsl import connections
+from copy import deepcopy
+from elasticsearch_dsl import connections, Search
 from elasticsearch_dsl.query import MultiMatch
 
+from vgl import utils
+from vgl.cassandra import CassandraConnectionManager
 from vgl.documents import Game
 from vgl.forms import SearchForm
-from vgl.models import AgeRating, Platform
+from vgl.models import AgeRating, Platform, GameStats
 
 from videogames_lair_site import settings
 
@@ -20,11 +22,13 @@ class GameListView(ListView):
     context_object_name = "game_list"
     paginate_by = 10
     max_results = 100
+    normal_filters_names = ["genres", "themes", "franchises", "platforms", "developers", "publishers", "age_ratings"]
     only_filters = False
+    form = None
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.form = SearchForm(self.request.GET)
+        GameListView.form = SearchForm(self.request.GET)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -82,10 +86,39 @@ class GameListView(ListView):
 
         return context
 
+    def _get_filters(self) -> Dict[str, List[str]]:
+        filters = {}
+        for field in self.normal_filters_names:
+            values_to_filter = self.form.cleaned_data.get(field)
+            if values_to_filter:
+                filters[field] = values_to_filter
+
+        return filters
+
+    def apply_filters_to_search(self, search: Search) -> Search:
+        filters = {}
+        year_range = []
+        new_search = deepcopy(search)
+
+        if self.form.is_valid():
+            filters = self._get_filters()
+            form_year_range = self.form.cleaned_data.get("years")
+            if form_year_range:
+                year_range = form_year_range.split(";")
+
+        for filter_name, filter_values in filters.items():
+            for filter_value in filter_values:
+                new_search = new_search.filter("term", **{filter_name: filter_value})
+
+        if year_range:
+            new_search = new_search.filter("range", release_date={"gte": f"{year_range[0]}-01-01",
+                                                                  "lte": f"{year_range[1]}-12-31"})
+
+        return new_search
+
 
 class SearchResultsView(GameListView):
     template_name = "vgl/search.html"
-    normal_filters_names = ["genres", "themes", "franchises", "platforms", "developers", "publishers", "age_ratings"]
     only_filters = False
 
     def _fill_filter(self, field: str, filters: Dict[str, List[str]]):
@@ -100,24 +133,12 @@ class SearchResultsView(GameListView):
 
     def get_queryset(self):
         query_text = None
-        filters = {}
-        year_range = []
         search = Game.search()
 
         if self.form.is_valid():
             query_text = self.form.cleaned_data.get("q")
-            self._fill_filters(self.normal_filters_names, filters)
-            form_year_range = self.form.cleaned_data.get("years")
-            if form_year_range:
-                year_range = form_year_range.split(";")
 
-        for filter_name, filter_values in filters.items():
-            for filter_value in filter_values:
-                search = search.filter("term", **{filter_name: filter_value})
-
-        if year_range:
-            search = search.filter("range",
-                                   release_date={"gte": f"{year_range[0]}-01-01", "lte": f"{year_range[1]}-12-31"})
+        search = self.apply_filters_to_search(search)
 
         if not query_text:
             return []
@@ -127,37 +148,51 @@ class SearchResultsView(GameListView):
 
         search = search.query(query)[:self.max_results]
 
-        return search.execute()
+        games = list(search.execute())
+
+        # Add stats to the games
+        utils.add_stats_to_games(games)
+
+        return games
 
 
-class RecommendationsView(GameListView):
+class RecommendationsView(LoginRequiredMixin, GameListView):
     template_name = "vgl/recommendations.html"
     only_filters = True
+    has_custom_recommendations = True
 
     def get_queryset(self):
-        auth_provider = PlainTextAuthProvider(
-            username=settings.CASSANDRA_USER,
-            password=settings.CASSANDRA_PASSWORD
-        )
+        with CassandraConnectionManager() as cassandra:
+            recommendations = cassandra.get_recommendations_for_user(self.request.user.als_user_id)
 
-        with Cluster(settings.CASSANDRA_HOST, auth_provider=auth_provider) as cluster:
-            with cluster.connect(keyspace=settings.CASSANDRA_KEYSPACE) as session:
-                recommendations = session.execute(f"SELECT * FROM recommendations "
-                                                  f"WHERE user_id = {self.request.user.als_user_id} "
-                                                  f"ORDER BY rank")
+        # If there are no recommendations in Cassandra, suggest most popular games
+        if not recommendations:
+            self.has_custom_recommendations = False
+            recommendations = list(GameStats.objects.order_by("-popularity")[:self.max_results])
 
         # Get recommended games data from ES
         game_ids = [recommendation.game_id for recommendation in recommendations]
-        search = Game.search().filter("terms", vgl_id=game_ids)[:self.max_results]
+        search = Game.search()
+        search = self.apply_filters_to_search(search)
+        search = search.filter("terms", vgl_id=game_ids)[:self.max_results]
         games = list(search.execute())
+
+        # Add stats to the games
+        utils.add_stats_to_games(games)
 
         # Sort games so that they match the ranking from Cassandra
         games_dict = {game_id: position for position, game_id in enumerate(game_ids)}
 
-        results = [None] * len(games)
+        results = [None] * len(games_dict)
         for game in games:
             results[games_dict[game.vgl_id]] = game
         # Remove empty results, if any
         results = [game for game in results if game is not None]
 
         return results
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context["has_custom_recommendations"] = self.has_custom_recommendations
+
+        return context

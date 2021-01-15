@@ -1,4 +1,5 @@
 from django import template
+from django.urls import resolve
 
 register = template.Library()
 
@@ -21,3 +22,8 @@ def advanced_filter(name: str, visible_value: str, hidden_value: str = None):
         "visible_value": visible_value,
         "hidden_value": hidden_value
     }
+
+
+@register.simple_tag()
+def resolve_url_name(url: str) -> str:
+    return "vgl:" + resolve(url).url_name
