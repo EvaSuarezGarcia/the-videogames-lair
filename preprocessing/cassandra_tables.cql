@@ -17,6 +17,8 @@ CREATE TABLE ratings (
     game_id int,
     rating tinyint,
     estimated boolean,
+    created_at timestamp,
+    updated_at timestamp,
     PRIMARY KEY (user_id, game_id)
 );
 

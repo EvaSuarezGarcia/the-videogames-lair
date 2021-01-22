@@ -33,11 +33,14 @@
                         <div class="col-md-8 border-md-left">
                             {# Game rating #}
                             <div class="card-header border-top border-top-md-0 text-size-1-25-rem">
-                                <span class="far fa-star"></span>
-                                <span class="far fa-star"></span>
-                                <span class="far fa-star"></span>
-                                <span class="far fa-star"></span>
-                                <span class="far fa-star"></span>
+                                <span class="{% if game.user_rating >= 1 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
+                                <span class="{% if game.user_rating >= 2 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
+                                <span class="{% if game.user_rating >= 3 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
+                                <span class="{% if game.user_rating >= 4 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
+                                <span class="{% if game.user_rating == 5 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
+                                {% if game.estimated_rating %}
+                                    <span class="fab fa-steam fa-lg ml-2" data-toggle="tooltip" title="This rating has been estimated based on your Steam playtime"></span>
+                                {% endif %}
                                 <strong class="float-right">{{ game.stats.mean_rating }}</strong>
                             </div>
                             {# Basic game info #}
@@ -89,4 +92,5 @@
     {% else %}
         <script>setYearsSlider()</script>
     {% endif %}
+    <script>$("[data-toggle='tooltip']").tooltip()</script>
 {% endblock%}

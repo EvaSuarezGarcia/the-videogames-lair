@@ -37,6 +37,10 @@ body > section {
     background-color: var(--purple);
 }
 
+.color-purple {
+    color: var(--purple);
+}
+
 /************ Border utilities ************/
 @media (min-width: 768px) {
     .rounded-md-0 {

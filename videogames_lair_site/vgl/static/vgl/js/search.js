@@ -78,9 +78,6 @@ function setYearsSlider(currentMin, currentMax) {
         currentMax = max;
     }
 
-    console.log(currentMin)
-    console.log(currentMax)
-
     $(".js-range-slider").ionRangeSlider({
         type: "double",
         skin: "round",

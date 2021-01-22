@@ -116,6 +116,26 @@ class GameListView(ListView):
 
         return new_search
 
+    def search_by_game_ids(self, game_ids: List[int]) -> List[Game]:
+        search = Game.search()
+        search = self.apply_filters_to_search(search)
+        search = search.filter("terms", vgl_id=game_ids)[:self.max_results]
+        return list(search.execute())
+
+    @staticmethod
+    def _add_rating_to_games(ratings: List, games: List[Game]) -> None:
+        ratings_dict = {rating.game_id: rating for rating in ratings}
+        for game in games:
+            if game.vgl_id in ratings_dict:
+                game.user_rating = ratings_dict[game.vgl_id].rating
+                game.estimated_rating = ratings_dict[game.vgl_id].estimated
+
+    def get_ratings_and_add_to_games(self, games: List[Game]) -> None:
+        with CassandraConnectionManager() as cassandra:
+            ratings = cassandra.get_user_ratings(self.request.user.als_user_id)
+
+        self._add_rating_to_games(ratings, games)
+
 
 class SearchResultsView(GameListView):
     template_name = "vgl/search.html"
@@ -149,6 +169,7 @@ class SearchResultsView(GameListView):
         search = search.query(query)[:self.max_results]
 
         games = list(search.execute())
+        self.get_ratings_and_add_to_games(games)
 
         # Add stats to the games
         utils.add_stats_to_games(games)
@@ -172,10 +193,8 @@ class RecommendationsView(LoginRequiredMixin, GameListView):
 
         # Get recommended games data from ES
         game_ids = [recommendation.game_id for recommendation in recommendations]
-        search = Game.search()
-        search = self.apply_filters_to_search(search)
-        search = search.filter("terms", vgl_id=game_ids)[:self.max_results]
-        games = list(search.execute())
+        games = list(self.search_by_game_ids(game_ids))
+        self.get_ratings_and_add_to_games(games)
 
         # Add stats to the games
         utils.add_stats_to_games(games)
@@ -195,4 +214,37 @@ class RecommendationsView(LoginRequiredMixin, GameListView):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["has_custom_recommendations"] = self.has_custom_recommendations
 
+        return context
+
+
+class RatingsView(LoginRequiredMixin, GameListView):
+    template_name = "vgl/ratings.html"
+    only_filters = True
+    user_has_ratings = True
+
+    def get_queryset(self):
+        # Get this user's ratings from Cassandra
+        with CassandraConnectionManager() as cassandra:
+            ratings = cassandra.get_user_ratings(self.request.user.als_user_id)
+
+        if ratings:
+            # Search games in ES
+            game_ids = [rating.game_id for rating in ratings]
+            games = self.search_by_game_ids(game_ids)
+
+            # Add stats to the games
+            utils.add_stats_to_games(games)
+
+            # Add user rating to the games
+            self._add_rating_to_games(ratings, games)
+
+        else:
+            self.user_has_ratings = False
+            games = []
+
+        return games
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['user_has_ratings'] = self.user_has_ratings
         return context

@@ -60,8 +60,8 @@ if __name__ == "__main__":
                     rows = cursor.fetchall()
 
                     # Prepare insert statement
-                    insert_cql = "INSERT INTO ratings (game_id, user_id, rating, estimated) " \
-                        "VALUES (?, ?, ?, ?)"
+                    insert_cql = "INSERT INTO ratings (game_id, user_id, rating, estimated, created_at, updated_at) " \
+                        "VALUES (?, ?, ?, ?, toTimestamp(now()), toTimestamp(now()))"
                     insert_stmt = session.prepare(insert_cql)
 
                     while len(rows) > BATCH_SIZE:

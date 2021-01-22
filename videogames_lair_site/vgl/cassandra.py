@@ -37,3 +37,7 @@ class CassandraConnectionManager:
         return list(self.session.execute(f"SELECT * FROM recommendations "
                                          f"WHERE user_id = {user_id} "
                                          f"ORDER BY rank"))
+
+    def get_user_ratings(self, user_id: int) -> List[NamedTuple]:
+        return list(self.session.execute(f"SELECT * FROM ratings "
+                                         f"WHERE user_id = {user_id}"))
