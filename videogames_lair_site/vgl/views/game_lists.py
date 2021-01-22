@@ -169,7 +169,8 @@ class SearchResultsView(GameListView):
         search = search.query(query)[:self.max_results]
 
         games = list(search.execute())
-        self.get_ratings_and_add_to_games(games)
+        if self.request.user.is_authenticated:
+            self.get_ratings_and_add_to_games(games)
 
         # Add stats to the games
         utils.add_stats_to_games(games)
