@@ -33,11 +33,16 @@
                         <div class="col-md-8 border-md-left">
                             {# Game rating #}
                             <div class="card-header border-top border-top-md-0 text-size-1-25-rem">
-                                <span class="{% if game.user_rating >= 1 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
-                                <span class="{% if game.user_rating >= 2 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
-                                <span class="{% if game.user_rating >= 3 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
-                                <span class="{% if game.user_rating >= 4 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
-                                <span class="{% if game.user_rating == 5 %}fas{% else %}far{% endif %} fa-star{% if game.estimated_rating %} text-info{% endif %}"></span>
+                                <span class="{% if game.user_rating >= 1 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                                    onclick="rateGame(this, {{ game.vgl_id }}, 1)"></span>
+                                <span class="{% if game.user_rating >= 2 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                                    onclick="rateGame(this, {{ game.vgl_id }}, 2)"></span>
+                                <span class="{% if game.user_rating >= 3 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                                    onclick="rateGame(this, {{ game.vgl_id }}, 3)"></span>
+                                <span class="{% if game.user_rating >= 4 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                                    onclick="rateGame(this, {{ game.vgl_id }}, 4)"></span>
+                                <span class="{% if game.user_rating == 5 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                                    onclick="rateGame(this, {{ game.vgl_id }}, 5)"></span>
                                 {% if game.estimated_rating %}
                                     <span class="fab fa-steam fa-lg ml-2" data-toggle="tooltip" title="This rating has been estimated based on your Steam playtime"></span>
                                 {% endif %}
@@ -45,7 +50,7 @@
                             </div>
                             {# Basic game info #}
                             <div class="card-body">
-                                <h5 class="card-title">{{ game.name }} ({{ game.release_date|date:"Y" }})</h5>
+                                <h5 class="card-title">{{ game.name }} {% if game.release_date %}({{ game.release_date|date:"Y" }}){% endif %}</h5>
                                 {% if game.aliases %}
                                     <h6 class="card-subtitle mb-2 text-muted">Also known as: {{ game.aliases|join:", " }}</h6>
                                 {% endif %}
@@ -86,7 +91,7 @@
 {% block extra_js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
-    <script src="{% static 'vgl/js/search.js' %}"></script>
+    <script src="{% static 'vgl/js/game_list.js' %}"></script>
     {% if year_from and year_to %}
         <script>setYearsSlider({{ year_from }}, {{ year_to }})</script>
     {% else %}

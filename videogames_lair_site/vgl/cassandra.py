@@ -33,11 +33,14 @@ class CassandraConnectionManager:
         if self.cluster is not None:
             self.cluster.shutdown()
 
-    def get_recommendations_for_user(self, user_id: int) -> List[NamedTuple]:
-        return list(self.session.execute(f"SELECT * FROM recommendations "
-                                         f"WHERE user_id = {user_id} "
-                                         f"ORDER BY rank"))
+    def get_recommendations_for_user(self, user_id: int) -> List:
+        recommendations = list(self.session.execute(f"SELECT * FROM recommendations "
+                                                    f"WHERE user_id = {user_id} "
+                                                    f"ORDER BY rank"))
+        rated_games = [rating.game_id for rating in self.get_user_ratings(user_id)]
+        return [recommendation for recommendation in recommendations
+                if recommendation.game_id not in rated_games]
 
-    def get_user_ratings(self, user_id: int) -> List[NamedTuple]:
+    def get_user_ratings(self, user_id: int) -> List:
         return list(self.session.execute(f"SELECT * FROM ratings "
                                          f"WHERE user_id = {user_id}"))

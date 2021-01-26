@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse
 from django.views.generic import ListView
 from copy import deepcopy
 from elasticsearch_dsl import connections, Search
@@ -24,11 +25,14 @@ class GameListView(ListView):
     max_results = 100
     normal_filters_names = ["genres", "themes", "franchises", "platforms", "developers", "publishers", "age_ratings"]
     only_filters = False
-    form = None
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.form = None
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        GameListView.form = SearchForm(self.request.GET)
+        self.form = SearchForm(self.request.GET)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -181,7 +185,10 @@ class SearchResultsView(GameListView):
 class RecommendationsView(LoginRequiredMixin, GameListView):
     template_name = "vgl/recommendations.html"
     only_filters = True
-    has_custom_recommendations = True
+
+    def __init__(self):
+        super().__init__()
+        self.has_custom_recommendations = True
 
     def get_queryset(self):
         with CassandraConnectionManager() as cassandra:
@@ -221,7 +228,10 @@ class RecommendationsView(LoginRequiredMixin, GameListView):
 class RatingsView(LoginRequiredMixin, GameListView):
     template_name = "vgl/ratings.html"
     only_filters = True
-    user_has_ratings = True
+
+    def __init__(self):
+        super().__init__()
+        self.user_has_ratings = True
 
     def get_queryset(self):
         # Get this user's ratings from Cassandra
@@ -249,3 +259,7 @@ class RatingsView(LoginRequiredMixin, GameListView):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context['user_has_ratings'] = self.user_has_ratings
         return context
+
+
+def rate_game(request):
+    return HttpResponse()

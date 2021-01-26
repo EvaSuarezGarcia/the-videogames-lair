@@ -9,5 +9,7 @@ class CassandraTests(TestCase):
         user_id = 11347171
         with CassandraConnectionManager() as cassandra:
             recommendations = cassandra.get_recommendations_for_user(user_id)
+            ratings = cassandra.get_user_ratings(user_id)
 
         self.assertEqual(len(recommendations), 100)
+        self.assertFalse(any(rating not in recommendations for rating in ratings))

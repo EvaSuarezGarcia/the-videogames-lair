@@ -2,7 +2,7 @@ from django.urls import path, reverse_lazy
 from django.views.generic import TemplateView
 
 from vgl.views import autocomplete as ac
-from vgl.views.game_lists import SearchResultsView, RecommendationsView, RatingsView
+from vgl.views.game_lists import SearchResultsView, RecommendationsView, RatingsView, rate_game
 
 app_name = "vgl"
 urlpatterns = [
@@ -10,6 +10,7 @@ urlpatterns = [
     path("search/", SearchResultsView.as_view(), name="search"),
     path("recommendations/", RecommendationsView.as_view(), name="recommendations"),
     path("ratings/", RatingsView.as_view(), name="ratings"),
+    path("rate-game/", rate_game, name="rate_game"),
     path("autocomplete-genre/", ac.autocomplete_genre, name="autocomplete_genre"),
     path("autocomplete-company/", ac.autocomplete_company, name="autocomplete_company"),
     path("autocomplete-franchise/", ac.autocomplete_franchise, name="autocomplete_franchise"),

@@ -65,6 +65,11 @@ body > section {
     }
 }
 
+/************ Cursor utilities *************/
+.cursor-pointer {
+    cursor: pointer;
+}
+
 /************ Display utilities ************/
 @media (min-width: 380px) {
     .d-380-flex {
