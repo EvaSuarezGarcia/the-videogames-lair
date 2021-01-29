@@ -106,10 +106,10 @@ function rateGame(star, gameId, rating) {
 
     /* Send rating to backend */
     $.ajax({
-        url: "rate-game/",
+        url: "/rate-game/",
         type: "POST",
         headers: {
-            "X-CSRFToken": Cookies.get("csrfcookie")
+            "X-CSRFToken": Cookies.get("csrftoken")
         },
         data: {
             "game_id": gameId,

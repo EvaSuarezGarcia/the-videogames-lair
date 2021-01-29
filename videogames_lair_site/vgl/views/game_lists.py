@@ -1,7 +1,8 @@
 from typing import Dict, List
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 from copy import deepcopy
 from elasticsearch_dsl import connections, Search
@@ -12,6 +13,7 @@ from vgl.cassandra import CassandraConnectionManager
 from vgl.documents import Game
 from vgl.forms import SearchForm
 from vgl.models import AgeRating, Platform, GameStats
+from vgl.utils import login_required_or_403
 
 from videogames_lair_site import settings
 
@@ -261,5 +263,21 @@ class RatingsView(LoginRequiredMixin, GameListView):
         return context
 
 
+@login_required_or_403
+@require_POST
 def rate_game(request):
+    try:
+        game_id = int(request.POST["game_id"])
+        rating = int(request.POST["rating"])
+    except (ValueError, KeyError):
+        return HttpResponseBadRequest()
+
+    # Check that the game exists in ES
+    result = Game.search().filter("terms", vgl_id=[game_id]).execute()
+    if not result:
+        return HttpResponseNotFound()
+
+    # Write rating to Cassandra
+    with CassandraConnectionManager() as cassandra:
+        cassandra.rate_game(request.user.als_user_id, game_id, rating)
     return HttpResponse()

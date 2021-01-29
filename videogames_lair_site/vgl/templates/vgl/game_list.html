@@ -32,7 +32,8 @@
                         {# Card content: bottom on mobile, right on larger devices #}
                         <div class="col-md-8 border-md-left">
                             {# Game rating #}
-                            <div class="card-header border-top border-top-md-0 text-size-1-25-rem">
+                            <div class="card-header border-top border-top-md-0 text-size-1-25-rem{% if not user.is_authenticated %} d-flex{% endif %}">
+                                {% if user.is_authenticated %}
                                 <span class="{% if game.user_rating >= 1 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
                                     onclick="rateGame(this, {{ game.vgl_id }}, 1)"></span>
                                 <span class="{% if game.user_rating >= 2 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
@@ -46,7 +47,8 @@
                                 {% if game.estimated_rating %}
                                     <span class="fab fa-steam fa-lg ml-2" data-toggle="tooltip" title="This rating has been estimated based on your Steam playtime"></span>
                                 {% endif %}
-                                <strong class="float-right">{{ game.stats.mean_rating }}</strong>
+                                {% endif %}
+                                <strong class="{% if user.is_authenticated %}float-right{% else %}ml-auto{% endif %}">{{ game.stats.mean_rating }}</strong>
                             </div>
                             {# Basic game info #}
                             <div class="card-body">
