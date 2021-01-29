@@ -180,6 +180,7 @@ ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300  # 5 minutes in seconds
 
 ACCOUNT_LOGOUT_REDIRECT_URL = 'vgl:index'
 
+LOGIN_URL = "account_login"
 # Where to redirect to after login/logout by default
 LOGIN_REDIRECT_URL = 'vgl:index'
 

@@ -1,6 +1,8 @@
 from typing import Dict, List
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 from copy import deepcopy
 from elasticsearch_dsl import connections, Search
@@ -11,6 +13,7 @@ from vgl.cassandra import CassandraConnectionManager
 from vgl.documents import Game
 from vgl.forms import SearchForm
 from vgl.models import AgeRating, Platform, GameStats
+from vgl.utils import login_required_or_403
 
 from videogames_lair_site import settings
 
@@ -24,11 +27,14 @@ class GameListView(ListView):
     max_results = 100
     normal_filters_names = ["genres", "themes", "franchises", "platforms", "developers", "publishers", "age_ratings"]
     only_filters = False
-    form = None
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.form = None
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        GameListView.form = SearchForm(self.request.GET)
+        self.form = SearchForm(self.request.GET)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -116,6 +122,26 @@ class GameListView(ListView):
 
         return new_search
 
+    def search_by_game_ids(self, game_ids: List[int]) -> List[Game]:
+        search = Game.search()
+        search = self.apply_filters_to_search(search)
+        search = search.filter("terms", vgl_id=game_ids)[:self.max_results]
+        return list(search.execute())
+
+    @staticmethod
+    def _add_rating_to_games(ratings: List, games: List[Game]) -> None:
+        ratings_dict = {rating.game_id: rating for rating in ratings}
+        for game in games:
+            if game.vgl_id in ratings_dict:
+                game.user_rating = ratings_dict[game.vgl_id].rating
+                game.estimated_rating = ratings_dict[game.vgl_id].estimated
+
+    def get_ratings_and_add_to_games(self, games: List[Game]) -> None:
+        with CassandraConnectionManager() as cassandra:
+            ratings = cassandra.get_user_ratings(self.request.user.als_user_id)
+
+        self._add_rating_to_games(ratings, games)
+
 
 class SearchResultsView(GameListView):
     template_name = "vgl/search.html"
@@ -149,6 +175,8 @@ class SearchResultsView(GameListView):
         search = search.query(query)[:self.max_results]
 
         games = list(search.execute())
+        if self.request.user.is_authenticated:
+            self.get_ratings_and_add_to_games(games)
 
         # Add stats to the games
         utils.add_stats_to_games(games)
@@ -159,7 +187,10 @@ class SearchResultsView(GameListView):
 class RecommendationsView(LoginRequiredMixin, GameListView):
     template_name = "vgl/recommendations.html"
     only_filters = True
-    has_custom_recommendations = True
+
+    def __init__(self):
+        super().__init__()
+        self.has_custom_recommendations = True
 
     def get_queryset(self):
         with CassandraConnectionManager() as cassandra:
@@ -172,10 +203,8 @@ class RecommendationsView(LoginRequiredMixin, GameListView):
 
         # Get recommended games data from ES
         game_ids = [recommendation.game_id for recommendation in recommendations]
-        search = Game.search()
-        search = self.apply_filters_to_search(search)
-        search = search.filter("terms", vgl_id=game_ids)[:self.max_results]
-        games = list(search.execute())
+        games = list(self.search_by_game_ids(game_ids))
+        self.get_ratings_and_add_to_games(games)
 
         # Add stats to the games
         utils.add_stats_to_games(games)
@@ -196,3 +225,59 @@ class RecommendationsView(LoginRequiredMixin, GameListView):
         context["has_custom_recommendations"] = self.has_custom_recommendations
 
         return context
+
+
+class RatingsView(LoginRequiredMixin, GameListView):
+    template_name = "vgl/ratings.html"
+    only_filters = True
+
+    def __init__(self):
+        super().__init__()
+        self.user_has_ratings = True
+
+    def get_queryset(self):
+        # Get this user's ratings from Cassandra
+        with CassandraConnectionManager() as cassandra:
+            ratings = cassandra.get_user_ratings(self.request.user.als_user_id)
+
+        if ratings:
+            # Search games in ES
+            game_ids = [rating.game_id for rating in ratings]
+            games = self.search_by_game_ids(game_ids)
+
+            # Add stats to the games
+            utils.add_stats_to_games(games)
+
+            # Add user rating to the games
+            self._add_rating_to_games(ratings, games)
+
+        else:
+            self.user_has_ratings = False
+            games = []
+
+        return games
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['user_has_ratings'] = self.user_has_ratings
+        return context
+
+
+@login_required_or_403
+@require_POST
+def rate_game(request):
+    try:
+        game_id = int(request.POST["game_id"])
+        rating = int(request.POST["rating"])
+    except (ValueError, KeyError):
+        return HttpResponseBadRequest()
+
+    # Check that the game exists in ES
+    result = Game.search().filter("terms", vgl_id=[game_id]).execute()
+    if not result:
+        return HttpResponseNotFound()
+
+    # Write rating to Cassandra
+    with CassandraConnectionManager() as cassandra:
+        cassandra.rate_game(request.user.als_user_id, game_id, rating)
+    return HttpResponse()

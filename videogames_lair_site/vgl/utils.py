@@ -1,9 +1,12 @@
+from functools import wraps
+
 from django.apps import apps
 from django.db.models import Model
+from django.http import HttpRequest, HttpResponseForbidden
 from django.urls import reverse
 from django.utils.http import urlencode
 
-from typing import Type, List
+from typing import Type, List, Callable
 
 from vgl.documents import Game
 from vgl.models import GameStats
@@ -39,3 +42,17 @@ def add_stats_to_games(games: List[Game]) -> None:
         except GameStats.DoesNotExist:
             pass
         game.stats = stats
+
+
+def login_required_or_403(view_func: Callable):
+    """
+    Decorator that mimics Django's LoginRequiredMixin behaviour.
+    (Django's login_required decorator doesn't raise a 403)
+    """
+    @wraps(view_func)
+    def decorator(request: HttpRequest, *args, **kwargs):
+        if request.user.is_authenticated:
+            return view_func(request, *args, **kwargs)
+        return HttpResponseForbidden()
+
+    return decorator

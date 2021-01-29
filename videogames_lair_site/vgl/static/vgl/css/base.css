@@ -37,6 +37,10 @@ body > section {
     background-color: var(--purple);
 }
 
+.color-purple {
+    color: var(--purple);
+}
+
 /************ Border utilities ************/
 @media (min-width: 768px) {
     .rounded-md-0 {
@@ -59,6 +63,11 @@ body > section {
     .border-md-left {
         border-left: 1px solid #dee2e6!important;
     }
+}
+
+/************ Cursor utilities *************/
+.cursor-pointer {
+    cursor: pointer;
 }
 
 /************ Display utilities ************/
