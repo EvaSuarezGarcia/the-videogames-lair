@@ -24,9 +24,11 @@
                 <div class="card h-100 shadow">
                     <div class="row no-gutters h-100">
                         {# Game image: top on mobile, left on larger devices #}
-                        <div class="col-md-4 bg-light d-flex align-items-center rounded-md-left">
+                        <div class="col-md-4 bg-light d-flex align-items-center justify-content-center rounded-md-left">
                             {% with "vgl/img_games/"|add:game.image as game_image %}
-                                <img src="{% static game_image %}" class="card-img-top rounded-md" alt="'{{ game.name }}' box art">
+                                <a href="{% url "vgl:game_detail" game.vgl_id %}">
+                                    <img src="{% static game_image %}" class="card-img-top rounded-md" alt="'{{ game.name }}' box art">
+                                </a>
                             {% endwith %}
                         </div>
                         {# Card content: bottom on mobile, right on larger devices #}
@@ -52,7 +54,9 @@
                             </div>
                             {# Basic game info #}
                             <div class="card-body">
-                                <h5 class="card-title">{{ game.name }} {% if game.release_date %}({{ game.release_date|date:"Y" }}){% endif %}</h5>
+                                <h5 class="card-title">
+                                    <a href="{% url "vgl:game_detail" game.vgl_id %}">{{ game.name }} {% if game.release_date %}({{ game.release_date|date:"Y" }}){% endif %}</a>
+                                </h5>
                                 {% if game.aliases %}
                                     <h6 class="card-subtitle mb-2 text-muted">Also known as: {{ game.aliases|join:", " }}</h6>
                                 {% endif %}

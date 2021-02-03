@@ -1,0 +1,77 @@
+{% extends "vgl/base.html" %}
+{# TODO override page title #}
+{% load static %}
+
+{% block css %}
+    <style>
+        figure, img {
+            max-width: 100% !important;
+        }
+    </style>
+{% endblock css %}
+
+{% block content %}
+    <div class="col mt-4 w-90 w-md-80 mx-auto">
+        <div class="card vh-85-md shadow">
+            <div class="row no-gutters h-100">
+                {# Game image: top on mobile, left on larger devices #}
+                <div class="col-md-4 bg-light d-flex flex-column align-items-center justify-content-center rounded-top rounded-md-left">
+                    {% with "vgl/img_games/"|add:game.image as game_image %}
+                        <a href="{% url "vgl:game_detail" game.vgl_id %}">
+                            <img src="{% static game_image %}" class="card-img-top rounded-md" alt="'{{ game.name }}' box art">
+                        </a>
+                    {% endwith %}
+                </div>
+                {# Card content: bottom on mobile, right on larger devices #}
+                <div class="col-md-8 border-md-left h-100 d-flex flex-column">
+                    {# Game rating #}
+                    <div class="card-header border-top border-top-md-0 text-size-1-25-rem{% if not user.is_authenticated %} d-flex{% endif %}">
+                        {% if user.is_authenticated %}
+                        <span class="{% if game.user_rating >= 1 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                            onclick="rateGame(this, {{ game.vgl_id }}, 1)"></span>
+                        <span class="{% if game.user_rating >= 2 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                            onclick="rateGame(this, {{ game.vgl_id }}, 2)"></span>
+                        <span class="{% if game.user_rating >= 3 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                            onclick="rateGame(this, {{ game.vgl_id }}, 3)"></span>
+                        <span class="{% if game.user_rating >= 4 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                            onclick="rateGame(this, {{ game.vgl_id }}, 4)"></span>
+                        <span class="{% if game.user_rating == 5 %}fas{% else %}far{% endif %} fa-star cursor-pointer{% if game.estimated_rating %} text-info{% endif %}"
+                            onclick="rateGame(this, {{ game.vgl_id }}, 5)"></span>
+                        {% if game.estimated_rating %}
+                            <span class="fab fa-steam fa-lg ml-2" data-toggle="tooltip" title="This rating has been estimated based on your Steam playtime"></span>
+                        {% endif %}
+                        {% endif %}
+                        <strong class="{% if user.is_authenticated %}float-right{% else %}ml-auto{% endif %}">{{ game.stats.mean_rating }}</strong>
+                    </div>
+                    {# Basic game info #}
+                    <div class="card-body h-100 overflow-md-auto w-100">
+                        <h5 class="card-title">
+                            <a href="{% url "vgl:game_detail" game.vgl_id %}">{{ game.name }} {% if game.release_date %}({{ game.release_date|date:"Y" }}){% endif %}</a>
+                        </h5>
+                        {% if game.aliases %}
+                            <h6 class="card-subtitle mb-2 text-muted">Also known as: {{ game.aliases|join:", " }}</h6>
+                        {% endif %}
+                        <p class="card-text">{{ game.deck }}</p>
+                        {# Metadata #}
+                        {% if game.genres or game.platforms or game.themes %}
+                        <ul class="list-group list-group-flush border-top rounded-bottom">
+                            {% if game.genres %}
+                            <li class="list-group-item"><strong>Genre{{ game.genres|pluralize }}: </strong>{{ game.genres|join:", " }}</li>
+                            {% endif %}
+                            {% if game.platforms %}
+                            <li class="list-group-item"><strong>Platform{{ game.platforms|pluralize }}: </strong>{{ game.platforms|join:", " }}</li>
+                            {% endif %}
+                            {% if game.themes %}
+                            <li class="list-group-item"><strong>Theme{{ game.themes|pluralize }}: </strong>{{ game.themes|join:", " }}</li>
+                            {% endif %}
+                        </ul>
+                        {% endif %}
+                        <div class="overflow-auto overflow-md-hidden">
+                            {{ game.description|safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
