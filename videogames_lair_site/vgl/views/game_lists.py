@@ -277,8 +277,13 @@ class GameDetail(TemplateView):
 
         game = result[0]
 
-        # TODO add user rating
         utils.add_stats_to_games([game])
+        with CassandraConnectionManager() as cassandra:
+            rating = cassandra.get_user_rating_for_game(self.request.user.als_user_id, game_id)
+
+        if rating:
+            game.user_rating = rating.rating
+
         context["game"] = game
 
         return context

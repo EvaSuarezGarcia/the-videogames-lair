@@ -3,23 +3,17 @@
 {% load static %}
 
 {% block css %}
-    <style>
-        figure, img {
-            max-width: 100% !important;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static "vgl/css/game.css" %}">
 {% endblock css %}
 
 {% block content %}
-    <div class="col mt-4 w-90 w-md-80 mx-auto">
+    <div class="col mt-4 w-90 w-md-80 mx-auto mb-4 mb-md-0">
         <div class="card vh-85-md shadow">
             <div class="row no-gutters h-100">
                 {# Game image: top on mobile, left on larger devices #}
                 <div class="col-md-4 bg-light d-flex flex-column align-items-center justify-content-center rounded-top rounded-md-left">
                     {% with "vgl/img_games/"|add:game.image as game_image %}
-                        <a href="{% url "vgl:game_detail" game.vgl_id %}">
-                            <img src="{% static game_image %}" class="card-img-top rounded-md" alt="'{{ game.name }}' box art">
-                        </a>
+                        <img src="{% static game_image %}" class="card-img-top rounded-md" alt="'{{ game.name }}' box art">
                     {% endwith %}
                 </div>
                 {# Card content: bottom on mobile, right on larger devices #}
@@ -45,8 +39,11 @@
                     </div>
                     {# Basic game info #}
                     <div class="card-body h-100 overflow-md-auto w-100">
-                        <h5 class="card-title">
-                            <a href="{% url "vgl:game_detail" game.vgl_id %}">{{ game.name }} {% if game.release_date %}({{ game.release_date|date:"Y" }}){% endif %}</a>
+                        <h5 class="card-title d-flex align-items-baseline">
+                            <span>{{ game.name }} {% if game.release_date %}({{ game.release_date|date:"Y" }}){% endif %}</span>
+                            <a href="{{ game.site_detail_url }}" target="_blank" class="ml-2">
+                                <h6>See in GiantBomb <span class="fas fa-external-link-alt"></span></h6>
+                            </a>
                         </h5>
                         {% if game.aliases %}
                             <h6 class="card-subtitle mb-2 text-muted">Also known as: {{ game.aliases|join:", " }}</h6>
@@ -54,7 +51,7 @@
                         <p class="card-text">{{ game.deck }}</p>
                         {# Metadata #}
                         {% if game.genres or game.platforms or game.themes %}
-                        <ul class="list-group list-group-flush border-top rounded-bottom">
+                        <ul class="list-group list-group-flush border-top border-bottom mb-3">
                             {% if game.genres %}
                             <li class="list-group-item"><strong>Genre{{ game.genres|pluralize }}: </strong>{{ game.genres|join:", " }}</li>
                             {% endif %}
@@ -64,10 +61,27 @@
                             {% if game.themes %}
                             <li class="list-group-item"><strong>Theme{{ game.themes|pluralize }}: </strong>{{ game.themes|join:", " }}</li>
                             {% endif %}
+                            {% if game.age_ratings %}
+                                <li class="list-group-item"><strong>Age Rating{{ game.age_ratings|pluralize }}: </strong>{{ game.age_ratings|join:", " }}</li>
+                            {% endif %}
+                            {% if game.franchises %}
+                                <li class="list-group-item"><strong>Franchise{{ game.franchises|pluralize }}: </strong>{{ game.franchises|join:", " }}</li>
+                            {% endif %}
+                            {% if game.developers %}
+                                <li class="list-group-item"><strong>Developer{{ game.developers|pluralize }}: </strong>{{ game.developers|join:", " }}</li>
+                            {% endif %}
+                            {% if game.publishers %}
+                                <li class="list-group-item"><strong>Publisher{{ game.publishers|pluralize }}: </strong>{{ game.publishers|join:", " }}</li>
+                            {% endif %}
                         </ul>
                         {% endif %}
-                        <div class="overflow-auto overflow-md-hidden">
-                            {{ game.description|safe }}
+                        <div id="game-text" class="overflow-auto overflow-md-hidden position-relative">
+                            <div>{{ game.description|safe|truncatewords_html:500 }}</div>
+                            <div id="game-text-overlay" class="d-flex align-items-end justify-content-center">
+                                <a href="{{ game.site_detail_url }}" target="_blank" class="ml-2 text-size-1-25-rem">
+                                    See in GiantBomb <span class="fas fa-external-link-alt"></span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -75,3 +89,7 @@
         </div>
     </div>
 {% endblock content %}
+
+{% block extra_js %}
+    <script src="{% static "vgl/js/game.js" %}"></script>
+{% endblock %}
