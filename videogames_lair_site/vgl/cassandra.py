@@ -12,6 +12,7 @@ class CassandraConnectionManager:
     user: str = settings.CASSANDRA_USER
     password: str = settings.CASSANDRA_PASSWORD
     keyspace: str = "videogames_lair"
+    select_rating_statement = "SELECT * FROM ratings WHERE user_id=%s AND game_id=%s"
 
     def __init__(self):
         self.cluster: Optional[Cluster] = None
@@ -34,28 +35,32 @@ class CassandraConnectionManager:
             self.cluster.shutdown()
 
     def get_recommendations_for_user(self, user_id: int) -> List:
-        recommendations = list(self.session.execute(f"SELECT * FROM recommendations "
-                                                    f"WHERE user_id = {user_id} "
-                                                    f"ORDER BY rank"))
+        recommendations = list(self.session.execute("SELECT * FROM recommendations "
+                                                    "WHERE user_id = %s ORDER BY rank", [user_id]))
         rated_games = [rating.game_id for rating in self.get_user_ratings(user_id)]
         return [recommendation for recommendation in recommendations
                 if recommendation.game_id not in rated_games]
 
     def get_user_ratings(self, user_id: int) -> List:
-        ratings = list(self.session.execute(f"SELECT * FROM ratings "
-                                            f"WHERE user_id = {user_id}"))
+        ratings = list(self.session.execute("SELECT * FROM ratings WHERE user_id = %s", [user_id]))
         return sorted(ratings, key=lambda rating: (rating.created_at, rating.game_id))
 
+    def get_user_rating_for_game(self, user_id: int, game_id: int):
+        rating = None
+        result = list(self.session.execute(self.select_rating_statement, [user_id, game_id]))
+        if result:
+            rating = result[0]
+        return rating
+
     def rate_game(self, user_id: int, game_id: int, rating: int) -> bool:
-        previous_rating = self.session.execute(f"SELECT * FROM ratings WHERE user_id={user_id} AND game_id={game_id}")
+        previous_rating = self.session.execute(self.select_rating_statement, [user_id, game_id])
 
         if previous_rating:
-            self.session.execute(f"INSERT INTO ratings (user_id, game_id, rating, estimated, updated_at) "
-                                 f"VALUES ({user_id}, {game_id}, {rating}, false, toTimestamp(now()))")
+            self.session.execute("INSERT INTO ratings (user_id, game_id, rating, estimated, updated_at) "
+                                 "VALUES (%s, %s, %s, false, toTimestamp(now()))", [user_id, game_id, rating])
         else:
-            self.session.execute(f"INSERT INTO ratings (user_id, game_id, rating, estimated, created_at, updated_at) "
-                                 f"VALUES ({user_id}, {game_id}, {rating}, false, "
-                                 f"toTimestamp(now()), toTimestamp(now()))")
-        success = len(list(self.session.execute(f"SELECT * FROM ratings "
-                                                f"WHERE user_id={user_id} AND game_id={game_id}"))) == 1
+            self.session.execute("INSERT INTO ratings (user_id, game_id, rating, estimated, created_at, updated_at) "
+                                 "VALUES (%s, %s, %s, false, toTimestamp(now()), toTimestamp(now()))",
+                                 [user_id, game_id, rating])
+        success = len(list(self.session.execute(self.select_rating_statement, [user_id, game_id]))) == 1
         return success

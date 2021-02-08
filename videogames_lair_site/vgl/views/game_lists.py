@@ -1,9 +1,9 @@
 from typing import Dict, List
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.views.decorators.http import require_POST
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from copy import deepcopy
 from elasticsearch_dsl import connections, Search
 from elasticsearch_dsl.query import MultiMatch
@@ -263,6 +263,32 @@ class RatingsView(LoginRequiredMixin, GameListView):
         return context
 
 
+class GameDetail(TemplateView):
+    template_name = "vgl/game_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        game_id = self.kwargs["game_id"]
+        result = Game.search().filter("terms", vgl_id=[game_id]).execute()
+
+        if not result:
+            raise Http404
+
+        game = result[0]
+
+        utils.add_stats_to_games([game])
+        with CassandraConnectionManager() as cassandra:
+            rating = cassandra.get_user_rating_for_game(self.request.user.als_user_id, game_id)
+
+        if rating:
+            game.user_rating = rating.rating
+
+        context["game"] = game
+
+        return context
+
+
 @login_required_or_403
 @require_POST
 def rate_game(request):
@@ -275,7 +301,7 @@ def rate_game(request):
     # Check that the game exists in ES
     result = Game.search().filter("terms", vgl_id=[game_id]).execute()
     if not result:
-        return HttpResponseNotFound()
+        raise Http404
 
     # Write rating to Cassandra
     with CassandraConnectionManager() as cassandra:

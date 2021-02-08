@@ -81,7 +81,29 @@ body > section {
     }
 }
 
+/************ Overflow utilities **********/
+@media (min-width: 768px) {
+    .overflow-md-auto {
+        overflow: auto !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .overflow-md-hidden {
+        overflow: hidden !important;
+    }
+}
+
 /************ Sizing utilities ************/
+@media (min-width: 768px) {
+    .vh-85-md {
+        height: 85vh;
+    }
+    .w-md-80 {
+        width: 80% !important;
+    }
+}
+
 @media (min-width: 992px) {
     .w-lg-75 {
         width: 75% !important;
@@ -92,6 +114,10 @@ body > section {
     .w-xl-50 {
         width: 50% !important;
     }
+}
+
+.w-90 {
+    width: 90%;
 }
 
 /************ Spacing utilities ************/
