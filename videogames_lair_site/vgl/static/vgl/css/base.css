@@ -94,6 +94,12 @@ body > section {
     }
 }
 
+/************ Padding utilities ***********/
+.px-0-75rem {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
 /************ Sizing utilities ************/
 @media (min-width: 768px) {
     .vh-85-md {

@@ -1,0 +1,66 @@
+{% extends "vgl/base.html" %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+    {# TODO make section smaller #}
+<section class="rounded mx-auto">
+    <div class="mx-auto">
+        <form class="form-group row" method="post" action="{% url "vgl:update_username" %}">
+            {% csrf_token %}
+            <label for="username-input" class="col-form-label col-2">Username:</label>
+            <div class="col-10 d-flex">
+                <input id="username-readonly" readonly class="form-control-plaintext px-0-75rem" type="text" value="{{ request.user.username }}">
+                <input id="username-input" class="form-control d-none" type="text" name="username" value="{{ request.user.username }}">
+                <button id="edit-btn" type="button" class="btn btn-info" onclick="toggleUsernameField()"><span class="fa fa-edit fa-fw"></span></button>
+                <button id="save-btn" type="submit" class="btn btn-info d-none" name="action_edit_username"><span class="fa fa-save fa-fw"></span></button>
+            </div>
+        </form>
+        {% with request.user.socialaccount_set.all.0.get_provider_account as steam_account %}
+        {# Email #}
+        <div class="form-group">
+            <label class="col-form-label">Email</label>
+            {% if request.user.email %}
+                <form class="border p-2 d-flex" method="post" action="{% url "vgl:remove_email" %}">
+                    {% csrf_token %}
+                    <input class="form-control-plaintext" name="email" type="email" value="{{ request.user.email }}" readonly>
+                    <button class="btn btn-info" type="submit" name="action_remove"{% if not steam_account %} disabled{% endif %}>Remove</button>
+                    {% if not steam_account %}
+                        <span class="text-muted"><span class="fas fa-question-circle"></span>Bind an Steam account if you want to remove your email.</span>
+                    {% endif %}
+                </form>
+            {% else %}
+                <form class="d-flex" method="post" action="{% url "vgl:add_email" %}">
+                    {% csrf_token %}
+                    <input class="form-control" name="email" type="email" placeholder="E-mail address">
+                    <button class="btn btn-info" type="submit" name="action_add"><span class="fas fa-envelope"></span>Add e-mail</button>
+                </form>
+            {% endif %}
+        </div>
+        {# Steam account #}
+        <div class="form-group">
+            {% csrf_token %}
+            <label class="col-form-label">Steam Account</label>
+            <p><small class="text-muted">You can import your playtime data from your Steam account to receive personalized recommendations.</small></p>
+            {% if steam_account %}
+                <div class="border p-2">
+                    <a href="{{ steam_account.account.extra_data.profileurl }}" target="_blank">{{ steam_account }}</a>
+                    <button class="btn btn-info" type="submit" name="action_import">Import Data</button>
+                    <button class="btn btn-info" type="submit"{% if not request.user.email %} disabled{% endif %}>Remove</button>
+                    {% if not request.user.email %}
+                        <span class="text-muted"><span class="fas fa-question-circle"></span>Bind an e-mail if you want to remove your Steam account.</span>
+                    {% endif %}
+                </div>
+            {% else %}
+                <button class="btn btn-info" type="submit"><span class="fas fa-steam"></span>Bind Steam Account</button>
+            {% endif %}
+        </div>
+        {% endwith %}
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+    <script src="{% static "vgl/js/user_profile.js" %}"></script>
+{% endblock %}
