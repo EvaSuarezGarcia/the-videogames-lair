@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 
 from vgl.views import autocomplete as ac
 from vgl.views.game_lists import SearchResultsView, RecommendationsView, RatingsView, rate_game, GameDetail
-from vgl.views.user_profile import UserProfile, update_username, remove_email, add_email
+from vgl.views.user_profile import UserProfile, update_username, remove_email, add_email, remove_steam_account
 
 app_name = "vgl"
 urlpatterns = [
@@ -21,5 +21,6 @@ urlpatterns = [
     path("user-profile/", UserProfile.as_view(), name="user_profile"),
     path("update-username/", update_username, name="update_username"),
     path("remove-email/", remove_email, name="remove_email"),
-    path("add-email/", add_email, name="add_email")
+    path("add-email/", add_email, name="add_email"),
+    path("remove-steam-account/", remove_steam_account, name="remove_steam_account")
 ]

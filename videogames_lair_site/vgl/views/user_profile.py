@@ -1,4 +1,5 @@
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -30,11 +31,21 @@ def remove_email(request):
         pass
 
 
+@require_POST
+@login_required_or_403
 def add_email(request):
     # TODO check uniqueness
     email_address = EmailAddress.objects.add_email(request, request.user, request.POST["email"], confirm=False)
     request.user.email = email_address.email
     request.user.save()
+    return HttpResponseRedirect(reverse("vgl:user_profile"))
+
+
+@require_POST
+@login_required_or_403
+def remove_steam_account(request):
+    steam_account = SocialAccount.objects.get(user=request.user)
+    steam_account.delete()
     return HttpResponseRedirect(reverse("vgl:user_profile"))
 
 
