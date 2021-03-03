@@ -179,6 +179,7 @@ ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
 ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300  # 5 minutes in seconds
 
 ACCOUNT_LOGOUT_REDIRECT_URL = 'vgl:index'
+ACCOUNT_LOGOUT_ON_GET = True
 
 LOGIN_URL = "account_login"
 # Where to redirect to after login/logout by default

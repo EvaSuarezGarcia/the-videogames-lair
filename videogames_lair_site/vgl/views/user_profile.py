@@ -1,8 +1,9 @@
 from allauth.account.models import EmailAddress
+from allauth.account import views as account_views
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
@@ -57,3 +58,8 @@ def update_username(request):
     request.user.save()
 
     return HttpResponseRedirect(reverse("vgl:user_profile"))
+
+
+class PasswordChangeView(account_views.PasswordChangeView):
+    success_url = reverse_lazy("vgl:user_profile")
+

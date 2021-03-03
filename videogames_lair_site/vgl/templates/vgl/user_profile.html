@@ -41,7 +41,6 @@
         </div>
         {# Steam account #}
         <div class="form-group">
-            {% csrf_token %}
             <label class="col-form-label">Steam Account</label>
             <p><small class="text-muted">You can import your playtime data from your Steam account to receive personalized recommendations.</small></p>
             {% if steam_account %}
@@ -59,6 +58,26 @@
             {% endif %}
         </div>
         {% endwith %}
+        {# Change password #}
+        <div>
+            <label class="col-form-label">Change Password</label>
+            <form class="border p-2" method="post" action="{% url "vgl:change_password" %}">
+                {% csrf_token %}
+                <div class="form-group form-row">
+                    <label for="old-password" class="col-form-label col-6">Current Password</label>
+                    <input id="old-password" class="form-control col-6" type="password" name="oldpassword" placeholder="Current Password">
+                </div>
+                <div class="form-group form-row">
+                    <label for="new-password" class="col-form-label col-6">New Password:</label>
+                    <input id="new-password" class="form-control col-6" type="password" name="password1" placeholder="New Password">
+                </div>
+                <div class="form-group form-row">
+                    <label for="new-password2" class="col-form-label col-6">Repeat New Password:</label>
+                    <input id="new-password2" class="form-control col-6" type="password" name="password2" placeholder="Repeat New Password">
+                </div>
+                <button class="btn btn-info" type="submit" name="action">Change Password</button>
+            </form>
+        </div>
     </div>
 </section>
 {% endblock content %}
