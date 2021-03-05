@@ -12,6 +12,7 @@ class User(AbstractUser):
     first_name = None
     last_name = None
     als_user_id = models.PositiveIntegerField(unique=True)
+    email = models.EmailField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         with transaction.atomic():

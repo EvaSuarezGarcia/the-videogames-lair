@@ -21,6 +21,16 @@ body > section {
         width: 80%;
         padding: 1.5rem 2.5rem;
     }
+
+    body > section.small-section {
+        width: 70%;
+    }
+}
+
+@media (min-width: 992px) {
+    body > section.small-section {
+        width: 45%;
+    }
 }
 
 
@@ -92,6 +102,12 @@ body > section {
     .overflow-md-hidden {
         overflow: hidden !important;
     }
+}
+
+/************ Padding utilities ***********/
+.px-0-75rem {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
 }
 
 /************ Sizing utilities ************/
