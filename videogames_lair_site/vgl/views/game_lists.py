@@ -243,7 +243,10 @@ class RatingsView(LoginRequiredMixin, GameListView):
         if ratings:
             # Search games in ES
             game_ids = [rating.game_id for rating in ratings]
-            games = self.search_by_game_ids(game_ids)
+            games_from_es = self.search_by_game_ids(game_ids)
+            games = [None] * len(games_from_es)
+            for game in games_from_es:
+                games[game_ids.index(game.vgl_id)] = game
 
             # Add stats to the games
             utils.add_stats_to_games(games)
