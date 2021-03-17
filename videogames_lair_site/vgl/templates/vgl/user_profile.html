@@ -45,7 +45,7 @@
             <label class="col-form-label">Steam Account</label>
             <p><small class="text-muted form-text">You can import your playtime data from your Steam account to receive personalized recommendations.</small></p>
             {% if steam_account %}
-                <form class="border p-2 align-items-center" method="post" action="{% url "vgl:remove_steam_account" %}">
+                <form class="border p-2 align-items-center" method="post" action="{% url "vgl:steam_account_action" %}">
                     {% csrf_token %}
                     <div class="d-flex">
                         <a href="{{ steam_account.account.extra_data.profileurl }}" class="mr-auto p-2" target="_blank">{{ steam_account }}</a>
@@ -54,6 +54,9 @@
                     </div>
                     {% if not request.user.email %}
                         <small class="text-muted ml-2"><span class="fas fa-question-circle mr-1"></span>Bind an e-mail if you want to remove your Steam account.</small>
+                    {% endif %}
+                    {% if steam_success %}
+                        <small class="text-success ml-2"><span class="fas fa-check-circle mr-1"></span>Your Steam playtime data was imported successfully.</small>
                     {% endif %}
                 </form>
             {% else %}

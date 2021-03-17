@@ -146,6 +146,9 @@ CASSANDRA_USER = get_secret("CASSANDRA_USER")
 CASSANDRA_PASSWORD = get_secret("CASSANDRA_PASSWORD")
 CASSANDRA_KEYSPACE = "videogames_lair"
 
+# Steam settings
+STEAM_KEY = get_secret("STEAM_KEY")
+
 # Test settings
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
 TEST_OUTPUT_DIR = "reports"
