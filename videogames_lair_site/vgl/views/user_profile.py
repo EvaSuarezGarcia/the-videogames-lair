@@ -63,7 +63,7 @@ def _get_steam_games(user):
     user_steam_id = user.socialaccount_set.get(provider="steam").extra_data["steamid"]
 
     # Query Steam for this user's data
-    response = json.loads(requests.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/",
+    response = json.loads(requests.get("https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/",
                                        {"key": settings.STEAM_KEY, "steamid": user_steam_id, "format": "json",
                                         "include_played_free_games": True}).content)
     return response.get("response", {}).get("games", [])
