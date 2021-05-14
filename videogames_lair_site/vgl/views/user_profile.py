@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
-from vgl.cassandra import CassandraConnectionManager
+from vgl import cassandra
 from vgl.documents import Game
 from vgl.utils import login_required_or_403
 from videogames_lair_site import settings
@@ -104,7 +104,7 @@ def _get_games_from_es(steam_games):
     return es_games_dict
 
 
-def _get_vgl_games_to_rate(user_id, es_games_dict, cassandra):
+def _get_vgl_games_to_rate(user_id, es_games_dict):
     """Return a set with all vgl ids in es_games_dict except those already rated by the user"""
     user_explicit_rated_games = [rating.game_id for rating in cassandra.get_user_ratings(user_id)
                                  if not rating.estimated]
@@ -122,34 +122,33 @@ def steam_account_action(request):
 
         steam_games = _get_steam_games(request.user)
 
-        with CassandraConnectionManager() as cassandra:
-            # Filter by games that exist in Cassandra
-            cassandra_user_id = request.user.als_user_id
-            games_in_cassandra = cassandra.get_steam_games([game["appid"] for game in steam_games])
+        # Filter by games that exist in Cassandra
+        cassandra_user_id = request.user.als_user_id
+        games_in_cassandra = cassandra.get_steam_games([game["appid"] for game in steam_games])
 
-            steam_games_to_add = [game for game in steam_games if game["appid"] in
-                                  [game_cassandra.steam_id for game_cassandra in games_in_cassandra]]
+        steam_games_to_add = [game for game in steam_games if game["appid"] in
+                              [game_cassandra.steam_id for game_cassandra in games_in_cassandra]]
 
-            # Save playtimes to Cassandra
-            playtimes_to_add = [(game["appid"], game["playtime_forever"]) for game in steam_games_to_add]
-            cassandra.insert_steam_playtimes(cassandra_user_id, playtimes_to_add)
+        # Save playtimes to Cassandra
+        playtimes_to_add = [(game["appid"], game["playtime_forever"]) for game in steam_games_to_add]
+        cassandra.insert_steam_playtimes(cassandra_user_id, playtimes_to_add)
 
-            # Estimate rating for these steam games
-            estimated_ratings = _estimate_ratings(steam_games_to_add, games_in_cassandra)
+        # Estimate rating for these steam games
+        estimated_ratings = _estimate_ratings(steam_games_to_add, games_in_cassandra)
 
-            # Get VGL ids for these steam ids
-            es_games_dict = _get_games_from_es(steam_games_to_add)
+        # Get VGL ids for these steam ids
+        es_games_dict = _get_games_from_es(steam_games_to_add)
 
-            # Get VGL games that do not have an explicit rating by the user
-            games_to_estimate = _get_vgl_games_to_rate(cassandra_user_id, es_games_dict, cassandra)
+        # Get VGL games that do not have an explicit rating by the user
+        games_to_estimate = _get_vgl_games_to_rate(cassandra_user_id, es_games_dict)
 
-            # Save ratings to Cassandra
-            ratings_to_add = []
-            for rating_tuple in estimated_ratings:
-                vgl_ids = es_games_dict[rating_tuple[0]]
-                rating = rating_tuple[1]
-                ratings_to_add.extend([(vgl_id, rating) for vgl_id in vgl_ids if vgl_id in games_to_estimate])
-            cassandra.insert_estimated_ratings(cassandra_user_id, ratings_to_add)
+        # Save ratings to Cassandra
+        ratings_to_add = []
+        for rating_tuple in estimated_ratings:
+            vgl_ids = es_games_dict[rating_tuple[0]]
+            rating = rating_tuple[1]
+            ratings_to_add.extend([(vgl_id, rating) for vgl_id in vgl_ids if vgl_id in games_to_estimate])
+        cassandra.insert_estimated_ratings(cassandra_user_id, ratings_to_add)
 
         return redirect(f"{base_url}?steam_success=true")
     else:

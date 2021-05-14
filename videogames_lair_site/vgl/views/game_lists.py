@@ -8,8 +8,7 @@ from copy import deepcopy
 from elasticsearch_dsl import connections, Search
 from elasticsearch_dsl.query import MultiMatch
 
-from vgl import utils
-from vgl.cassandra import CassandraConnectionManager
+from vgl import utils, cassandra
 from vgl.documents import Game
 from vgl.forms import SearchForm
 from vgl.models import AgeRating, Platform, GameStats
@@ -137,8 +136,7 @@ class GameListView(ListView):
                 game.estimated_rating = ratings_dict[game.vgl_id].estimated
 
     def get_ratings_and_add_to_games(self, games: List[Game]) -> None:
-        with CassandraConnectionManager() as cassandra:
-            ratings = cassandra.get_user_ratings(self.request.user.als_user_id)
+        ratings = cassandra.get_user_ratings(self.request.user.als_user_id)
 
         self._add_rating_to_games(ratings, games)
 
@@ -193,8 +191,7 @@ class RecommendationsView(LoginRequiredMixin, GameListView):
         self.has_custom_recommendations = True
 
     def get_queryset(self):
-        with CassandraConnectionManager() as cassandra:
-            recommendations = cassandra.get_recommendations_for_user(self.request.user.als_user_id)
+        recommendations = cassandra.get_recommendations_for_user(self.request.user.als_user_id)
 
         # If there are no recommendations in Cassandra, suggest most popular games
         if not recommendations:
@@ -237,8 +234,7 @@ class RatingsView(LoginRequiredMixin, GameListView):
 
     def get_queryset(self):
         # Get this user's ratings from Cassandra
-        with CassandraConnectionManager() as cassandra:
-            ratings = cassandra.get_user_ratings(self.request.user.als_user_id)
+        ratings = cassandra.get_user_ratings(self.request.user.als_user_id)
 
         if ratings:
             # Search games in ES
@@ -281,8 +277,7 @@ class GameDetail(TemplateView):
         game = result[0]
 
         utils.add_stats_to_games([game])
-        with CassandraConnectionManager() as cassandra:
-            rating = cassandra.get_user_rating_for_game(self.request.user.als_user_id, game_id)
+        rating = cassandra.get_user_rating_for_game(self.request.user.als_user_id, game_id)
 
         if rating:
             game.user_rating = rating.rating
@@ -307,6 +302,5 @@ def rate_game(request):
         raise Http404
 
     # Write rating to Cassandra
-    with CassandraConnectionManager() as cassandra:
-        cassandra.rate_game(request.user.als_user_id, game_id, rating)
+    cassandra.rate_game(request.user.als_user_id, game_id, rating)
     return HttpResponse()

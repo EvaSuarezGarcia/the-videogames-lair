@@ -10,7 +10,6 @@ from model_bakery import baker
 from model_bakery.recipe import seq
 
 from vgl import models
-from vgl.cassandra import CassandraConnectionManager
 from vgl.utils import reverse_querystring
 from vgl.views.game_lists import SearchResultsView, RecommendationsView
 
@@ -192,7 +191,7 @@ class RecommendationsViewTests(TestCase):
         cls.user = baker.make(models.User)
         baker.make(models.GameStats, game_id=iter(cls.sample_game_ids), _quantity=len(cls.sample_game_ids))
         
-    @mock.patch.object(CassandraConnectionManager, "get_recommendations_for_user", return_value=sample_recommendations)
+    @mock.patch("vgl.cassandra.get_recommendations_for_user", return_value=sample_recommendations)
     def test_custom_recommendations(self, mock_cassandra_recommendations):
         self.client.force_login(self.user)
         response = self.client.get(self.RECOMMENDATIONS_URL)

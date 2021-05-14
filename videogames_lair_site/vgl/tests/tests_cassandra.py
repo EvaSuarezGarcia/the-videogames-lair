@@ -1,15 +1,14 @@
 from django.test import TestCase
 
-from vgl.cassandra import CassandraConnectionManager
+from vgl import cassandra
 
 
 class CassandraTests(TestCase):
 
     def test_get_recommendations_for_user(self):
         user_id = 11347171
-        with CassandraConnectionManager() as cassandra:
-            recommendations = cassandra.get_recommendations_for_user(user_id)
-            ratings = cassandra.get_user_ratings(user_id)
+        recommendations = cassandra.get_recommendations_for_user(user_id)
+        ratings = cassandra.get_user_ratings(user_id)
 
         self.assertGreater(len(recommendations), 0)
         self.assertLessEqual(len(recommendations), 100)
