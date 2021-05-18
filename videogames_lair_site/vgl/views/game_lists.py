@@ -145,16 +145,6 @@ class SearchResultsView(GameListView):
     template_name = "vgl/search.html"
     only_filters = False
 
-    def _fill_filter(self, field: str, filters: Dict[str, List[str]]):
-        values_to_filter = self.form.cleaned_data.get(field)
-
-        if values_to_filter:
-            filters[field] = values_to_filter
-
-    def _fill_filters(self, fields: List[str], filters: Dict[str, List[str]]):
-        for field in fields:
-            self._fill_filter(field, filters)
-
     def get_queryset(self):
         query_text = None
         search = Game.search()
@@ -201,7 +191,6 @@ class RecommendationsView(LoginRequiredMixin, GameListView):
         # Get recommended games data from ES
         game_ids = [recommendation.game_id for recommendation in recommendations]
         games = list(self.search_by_game_ids(game_ids))
-        self.get_ratings_and_add_to_games(games)
 
         # Add stats to the games
         utils.add_stats_to_games(games)
