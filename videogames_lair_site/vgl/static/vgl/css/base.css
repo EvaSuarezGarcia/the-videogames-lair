@@ -110,6 +110,27 @@ body > section {
     padding-right: 0.75rem;
 }
 
+/************ Separator *******************/
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.separator::before, .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid;
+}
+
+.separator:not(:empty)::before {
+    margin-right: .25em;
+}
+
+.separator:not(:empty)::after {
+    margin-left: .25em;
+}
+
 /************ Sizing utilities ************/
 @media (min-width: 768px) {
     .vh-85-md {
