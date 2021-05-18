@@ -1,0 +1,62 @@
+{# Save navbar URLs in variables for later use #}
+{% url "vgl:index" as home_page %}
+{% url "vgl:search" as explore_page %}
+{% url "vgl:recommendations" as recommendations_page %}
+{% url "vgl:ratings" as ratings_page %}
+{% url "vgl:user_profile" as profile_page %}
+{% url "account_login" as login_page %}
+{% url "account_signup" as signup_page %}
+
+<!-- Navbar is collapsed for tablets and down -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-purple sticky-top">
+    <button id="navbarMenuToggler" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="{% url "vgl:index" %}">
+        VGL
+    </a>
+    <button id="mobileSearchToggler" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mobileSearch">
+        <span class="fas fa-search"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarContent">
+        <div class="navbar-nav bg-purple mr-auto flex-shrink-0">
+            <div class="d-inline d-lg-none px-3 pt-2 mt-3 text-white">
+                <span class="font-weight-bold">The Videogame's Lair</span>
+                <button id="dismiss" data-toggle="collapse" data-target="#navbarContent" class="close text-white float-right mt-n3" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr class="d-lg-none">
+            </div>
+            <a class="nav-link{% if request.path == home_page %} active{% endif %}" href="{{ home_page }}"><span class="fas fa-home fa-fw mr-2 mr-lg-1"></span>Home{% if request.path == home_page %}<span class="sr-only">(current)</span>{% endif %}</a>
+            <a class="nav-link{% if request.path == explore_page %} active{% endif %}" href="{{ explore_page }}"><span class="fas fa-compass fa-fw mr-2 mr-lg-1"></span>Explore{% if request.path == explore_page %}<span class="sr-only">(current)</span>{% endif %}</a>
+            {% if user.is_authenticated %}
+                <a class="nav-link{% if request.path == recommendations_page %} active{% endif %}" href="{{ recommendations_page }}"><span class="fas fa-gamepad fa-fw mr-2 mr-lg-1"></span>Suggestions</a>
+                <a class="nav-link{% if request.path == ratings_page %} active{% endif %}" href="{{ ratings_page }}"><span class="fas fa-star fa-fw mr-2 mr-lg-1"></span>My Ratings</a>
+                <a class="nav-link{% if request.path == profile_page %} active{% endif %}" href="{{ profile_page }}"><span class="fas fa-user fa-fw mr-2 mr-lg-1"></span>My Profile</a>
+                {# Normal links for mobile #}
+                <a class="nav-link d-lg-none" href="{% url "account_logout" %}"><span class="fas fa-sign-out-alt fa-fw mr-2"></span>Log Out</a>
+            {% else %}
+                <a class="nav-link d-lg-none" href="{{ login_page }}"><span class="fas fa-sign-in-alt fa-fw mr-2"></span>Log In</a>
+                <a class="nav-link d-lg-none" href="{{ signup_page }}"><span class="fas fa-user-plus fa-fw mr-2"></span>Sign Up</a>
+            {% endif %}
+        </div>
+        <!-- Search bar for desktop -->
+        {% include "vgl/navbar_searchbar.html" with mobile=False %}
+        <!-- Right-aligned links for desktop -->
+        <div class="navbar-nav bg-purple d-none d-lg-flex flex-shrink-0">
+            {% if user.is_authenticated %}
+                <a class="nav-link" href="{% url "account_logout" %}"><span class="fas fa-sign-out-alt fa-fw mr-1"></span>Log Out</a>
+            {% else %}
+                <a class="nav-link" href="{{ login_page }}"><span class="fas fa-sign-in-alt fa-fw mr-1"></span>Log In</a>
+                <a class="nav-link" href="{{ signup_page }}"><span class="fas fa-user-plus fa-fw mr-1"></span>Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Search bar for mobile -->
+    <div class="collapse navbar-collapse" id="mobileSearch">
+        {% include "vgl/navbar_searchbar.html" with mobile=True %}
+    </div>
+</nav>
+
+<div class="overlay" data-toggle="collapse" data-target="#navbarContent"></div>

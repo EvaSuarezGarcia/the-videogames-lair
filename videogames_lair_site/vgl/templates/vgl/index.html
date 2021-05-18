@@ -1,15 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>The Videogame's Lair</title>
-</head>
-<body>
-    <p>Hello, world. You're at the Videogame's Lair index.</p>
-    {% if user.is_authenticated %}
-        <a href={% url 'account_logout' %}>Log out</a>
-    {% else %}
-        <a href={% url 'account_login' %}>Log in</a>
-    {% endif %}
-</body>
-</html>
+{% extends "vgl/base.html" %}
+
+{% block title %}Home{% endblock %}

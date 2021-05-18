@@ -244,9 +244,11 @@ def create_runs():
                             logger.info("Evaluating model of type %s: iter %d rank %d param %f for fold %d"
                                         % (FLAGS.typeInfo, iterations, rank, reg_param, i))
 
+                            als_training_set = training_set
+
                             # Get ALS model
                             if metadata:
-                                als_training_set = training_set.union(metadata)
+                                als_training_set = als_training_set.union(metadata)
 
                             model = train_or_get_model(iterations, rank, reg_param, als_training_set, client, model_name)
 

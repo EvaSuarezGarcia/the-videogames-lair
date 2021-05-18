@@ -1,0 +1,14 @@
+{% extends "vgl/game_list.html" %}
+
+{% block title %}Recommendations{% endblock %}
+
+{% block list_title %}
+    <h3 class="d-none d-sm-block">Take a look at our recommendations for you!</h3>
+    <h5 class="d-sm-none">Take a look at our recommendations for you!</h5>
+    {% if not has_custom_recommendations %}
+    <p class="text-muted">We're still crunching your data. The more games you rate, the more personalized the recommendations will become.</p>
+    {% endif %}
+{% endblock list_title %}
+
+{# List will only be empty if filters are too restrictive #}
+{% block empty_list %}Sorry, we didn't find recommendations matching your criteria :({% endblock %}

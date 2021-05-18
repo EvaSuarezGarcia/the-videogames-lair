@@ -1,0 +1,48 @@
+/* Only in the search results view, the main section is larger on xl devices */
+@media (min-width: 1200px) {
+    body > section {
+        width: 90%;
+        max-width: 1500px;
+    }
+}
+
+#advanced-filters {
+    max-height: 1000px;
+    opacity: 1;
+    transition: max-height 0.8s, opacity 0.8s;
+}
+
+#advanced-filters.collapsed {
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.8s, opacity 0.4s;
+}
+
+#advanced-filters-text {
+    font-size: 0;
+    opacity: 0;
+    transition: opacity 0.2s 0s ease, font-size 0.2s 0.2s ease;
+}
+
+#advanced-filters-btn:hover #advanced-filters-text {
+    font-size: inherit;
+    opacity: 1;
+    transition: font-size 0.2s 0s ease, opacity 0.2s 0.2s ease;
+}
+
+.irs-from, .irs-to, .irs-bar, .irs-single {
+    background-color: var(--purple) !important;
+}
+
+.irs-from::before, .irs-to::before, .irs-single::before {
+    border-top-color: var(--purple) !important;
+}
+
+.irs-handle {
+    border-color: var(--purple) !important;
+}
+
+.bootstrap-autocomplete {
+    max-height: 15rem;
+    overflow: auto;
+}

@@ -1,7 +1,8 @@
 import requests
 import re
 import time
-from config import gb_api_key
+from .config import gb_api_key
+
 
 class GbApi(object):
 
@@ -11,8 +12,8 @@ class GbApi(object):
     def limit_rate(self):
         now = time.time()
         elapsed = now - self.last_request
-        if elapsed < 5:
-            time.sleep(5 - elapsed)
+        if elapsed < 3:
+            time.sleep(3 - elapsed)
         self.last_request = time.time()        
 
     def search(self, query, resources=["game"], field_list=None):
@@ -38,7 +39,7 @@ class GbApi(object):
 
         return results
 
-    def get_game_and_related_elements(self, id, field_list=None):
+    def get_game(self, id, field_list=None):
         game_url = 'https://www.giantbomb.com/api/game/3030-' + str(id)
         params = {
             "api_key": gb_api_key,
@@ -53,14 +54,23 @@ class GbApi(object):
 
         result = requests.get(game_url, params=params, headers=self.headers).json()
         result = result.get('results', {})
+
+        # If no game is found, results will be an empty list
+        if isinstance(result, list):
+            result = {}
+
+        return result
+
+    def get_game_and_related_elements(self, id, field_list=None):
+        game = self.get_game(id, field_list)
         
-        return self.process_game_data(result, game_url)
+        return self.process_game_data(game)
 
     '''
         Utility function for extracting and cleaning metadata from a game and formatting 
         the game-element relationships into a list of (<game_id>, <element_id>)
     '''
-    def process_game_data(self, result, api_url):
+    def process_game_data(self, result):
         # Discard games not having an id or a name
         if not 'id' in result or not 'name' in result:
             return None
@@ -72,7 +82,7 @@ class GbApi(object):
         game['id'] = result['id']
         game['name'] = result['name']
         game['api_url'] = result['api_detail_url']
-        game['site_url'] = api_url
+        game['site_url'] = result['site_detail_url']
 
         all_data['game'] = game
 
@@ -199,3 +209,18 @@ class GbApi(object):
         game_elements = self.list_with_game_id(game_id, self.extract_ids(elements))
 
         return elements, game_elements
+
+    def get(self, url, field_list):
+        params = {
+            "api_key": gb_api_key,
+            "format": "json"
+        }
+
+        if field_list:
+            fields = ','.join(field_list)
+            params["field_list"] = fields
+
+        self.limit_rate()
+
+        result = requests.get(url, params=params, headers=self.headers).json()
+        return result.get('results', {})
