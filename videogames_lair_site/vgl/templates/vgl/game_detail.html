@@ -1,6 +1,7 @@
 {% extends "vgl/base.html" %}
-{# TODO override page title #}
 {% load static %}
+
+{% block title %}{{ game.name }}{% endblock title %}
 
 {% block css %}
     <link rel="stylesheet" href="{% static "vgl/css/game.css" %}">
