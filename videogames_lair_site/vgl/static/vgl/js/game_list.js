@@ -12,7 +12,7 @@ function createFilter(visibleValue, hiddenValue, name) {
 
     const span = document.createElement("span");
     span.innerText = visibleValue;
-    span.classList.add("bg-info", "text-white", "rounded-pill", "px-2", "mt-1", "mr-2", "d-inline-block");
+    span.classList.add("advanced-filter", "bg-info", "text-white", "rounded-pill", "px-2", "mt-1", "mr-2", "d-inline-block");
     span.appendChild(hiddenInput);
 
     const close = document.createElement("button");
@@ -64,6 +64,11 @@ function addAgeRatingFilter(select) {
 
     const container = document.getElementById("age-rating-filters-container");
     container.appendChild(span);
+
+    // Reset age rating selects
+    systemSelect.value = "default";
+    select.disabled = true;
+    select.value = "default";
 }
 
 function setYearsSlider(currentMin, currentMax) {
@@ -90,7 +95,8 @@ function setYearsSlider(currentMin, currentMax) {
 }
 
 $(document).ready(function () {
-    $("form").submit(function () {
+    let form = $("form");
+    form.submit(function () {
         if (($("#advanced-filters").hasClass("collapsed"))) {
             // Don't send filters at all
             $(".advanced-search").removeAttr("name");
@@ -102,6 +108,14 @@ $(document).ready(function () {
             input.type = "hidden";
             document.getElementById("advanced-filters").appendChild(input);
         }
+    });
+
+    form.bind("reset", function () {
+        // Remove all filters
+        $(".advanced-filter").remove();
+
+        // Reset release year filter
+        $(".js-range-slider").data("ionRangeSlider").reset();
     });
 
     $(".basic-autocomplete").autoComplete({minLength: 1, preventEnter: true});

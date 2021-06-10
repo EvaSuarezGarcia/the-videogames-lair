@@ -58,7 +58,7 @@
             <div class="form-group col-6 col-md-4 col-lg-6 ml-md-auto mb-0">
                 <label for="input-age-rating-system">Age Ratings</label>
                 <select id="input-age-rating-system" name="ar-sys" class="form-control mb-1 advanced-search" onchange="updateAgeRatings(this)">
-                    <option selected>System</option>
+                    <option value="default" selected>System</option>
                     {% for system in age_ratings %}
                         <option>{{ system }}</option>
                     {% endfor %}
@@ -67,7 +67,7 @@
             <div class="form-group col-6 col-md-4 col-lg-6 mr-md-auto mb-0">
                 <label class="text-white">Rating</label>
                 <select id="input-age-rating" class="form-control advanced-search" name="ar" onchange="addAgeRatingFilter(this)" disabled>
-                    <option selected>Rating</option>
+                    <option value="default" selected>Rating</option>
                     {% for system, age_rating_list in age_ratings.items %}
                         {% for age_rating in age_rating_list %}
                             <option data-option="{{ system }}">{{ age_rating }}</option>
