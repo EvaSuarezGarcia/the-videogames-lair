@@ -4,8 +4,8 @@
 {% url "vgl:recommendations" as recommendations_page %}
 {% url "vgl:ratings" as ratings_page %}
 {% url "vgl:user_profile" as profile_page %}
-{% url "account_login" as login_page %}
-{% url "account_signup" as signup_page %}
+{% url "vgl:login" as login_page %}
+{% url "vgl:signup" as signup_page %}
 
 <!-- Navbar is collapsed for tablets and down -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-purple sticky-top">
@@ -36,8 +36,8 @@
                 {# Normal links for mobile #}
                 <a class="nav-link d-lg-none" href="{% url "account_logout" %}"><span class="fas fa-sign-out-alt fa-fw mr-2"></span>Log Out</a>
             {% else %}
-                <a class="nav-link d-lg-none" href="{{ login_page }}"><span class="fas fa-sign-in-alt fa-fw mr-2"></span>Log In</a>
-                <a class="nav-link d-lg-none" href="{{ signup_page }}"><span class="fas fa-user-plus fa-fw mr-2"></span>Sign Up</a>
+                <a class="nav-link d-lg-none{% if request.path == login_page %} active{% endif %}" href="{{ login_page }}"><span class="fas fa-sign-in-alt fa-fw mr-2"></span>Log In</a>
+                <a class="nav-link d-lg-none{% if request.path == signup_page %} active{% endif %}" href="{{ signup_page }}"><span class="fas fa-user-plus fa-fw mr-2"></span>Sign Up</a>
             {% endif %}
         </div>
         <!-- Search bar for desktop -->
@@ -47,8 +47,8 @@
             {% if user.is_authenticated %}
                 <a class="nav-link" href="{% url "account_logout" %}"><span class="fas fa-sign-out-alt fa-fw mr-1"></span>Log Out</a>
             {% else %}
-                <a class="nav-link" href="{{ login_page }}"><span class="fas fa-sign-in-alt fa-fw mr-1"></span>Log In</a>
-                <a class="nav-link" href="{{ signup_page }}"><span class="fas fa-user-plus fa-fw mr-1"></span>Sign Up</a>
+                <a class="nav-link{% if request.path == login_page %} active{% endif %}" href="{{ login_page }}"><span class="fas fa-sign-in-alt fa-fw mr-1"></span>Log In</a>
+                <a class="nav-link{% if request.path == signup_page %} active{% endif %}" href="{{ signup_page }}"><span class="fas fa-user-plus fa-fw mr-1"></span>Sign Up</a>
             {% endif %}
         </div>
     </div>
