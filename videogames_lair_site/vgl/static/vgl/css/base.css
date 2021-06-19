@@ -132,6 +132,10 @@ body > section {
     }
 }
 
+.w-40 {
+    width: 40%;
+}
+
 .w-90 {
     width: 90%;
 }
@@ -168,4 +172,82 @@ body > section {
 
 .font-size-inherit {
     font-size: inherit;
+}
+
+/*********** Carousel *******************/
+#carousel-wrapper {
+    flex: 1 1 auto;
+    height: 100vh
+}
+
+#carousel {
+    width: 80%;
+}
+
+@media (min-width: 576px) {
+    #carousel {
+        width: 70%;
+    }
+}
+
+@media (min-width: 768px) {
+    #carousel {
+        width: 60%;
+    }
+}
+
+@media (min-width: 992px) {
+    #carousel {
+        width: 50%;
+    }
+}
+
+@media (min-width: 1200px) {
+    #carousel {
+        width: 40%;
+    }
+}
+
+#carousel .carousel-item {
+    background-color: white;
+}
+
+#carousel .carousel-link {
+    width: 100%;
+    height: inherit;
+}
+
+#carousel img {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: inherit;
+    width: 100%;
+}
+
+#carousel .carousel-caption {
+    width: 100%;
+    left: 0;
+    background-color: rgba(1, 1, 1, 0.5);
+}
+
+/***** Arrows *****/
+.arrow {
+    border: solid black;
+    border-width: 0 4px 4px 0;
+    display: inline-block;
+    padding: 4px;
+}
+
+.arrow.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+
+.arrow.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
 }
