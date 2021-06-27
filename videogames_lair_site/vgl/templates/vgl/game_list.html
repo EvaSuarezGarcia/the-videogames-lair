@@ -60,7 +60,7 @@
                                 {% if game.aliases %}
                                     <h6 class="card-subtitle mb-2 text-muted">Also known as: {{ game.aliases|join:", " }}</h6>
                                 {% endif %}
-                                <p class="card-text">{{ game.deck }}</p>
+                                <p class="card-text">{{ game.deck|safe }}</p>
                             </div>
                             {# Metadata #}
                             {% if game.genres or game.platforms or game.themes %}

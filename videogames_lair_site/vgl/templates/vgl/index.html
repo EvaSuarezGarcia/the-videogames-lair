@@ -21,12 +21,16 @@
             <div class="h-50 w-100 p-5 bg-white rounded d-flex align-items-center justify-content-center flex-column">
                 <h3 class="mb-4">Get personalized recommendations!</h3>
                 <div>
+                    {% if request.user.is_authenticated %}
+                    <a href="{% url 'vgl:recommendations' %}" class="btn btn-info btn-lg"><span class="fas fa-gamepad mr-2"></span>Suggestions</a>
+                    {% else %}
                     <a href="{% url 'vgl:login' %}" class="btn btn-info btn-lg mr-3"><span class="fas fa-sign-in-alt fa-fw mr-2"></span>Login</a>
                     <a href="{% url 'vgl:signup' %}" class="btn btn-info btn-lg"><span class="fas fa-user-plus fa-fw mr-2"></span>Sign up</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        <div id="carousel" class="carousel slide my-3" data-ride="carousel">
+        <div id="carousel" class="carousel slide my-3" data-ride="carousel" data-interval="3000">
             <ol class="carousel-indicators">
                 <li data-target="#carousel" data-slide-to="0" class="active"></li>
                 <li data-target="#carousel" data-slide-to="1"></li>
@@ -34,11 +38,20 @@
             </ol>
             <div class="carousel-inner h-100">
                 <div class="carousel-item active h-100">
-                    <a class="carousel-link" href="{% url 'vgl:game_detail' 21170 %}">
-                        <img class="d-block img-fluid rounded" src="{% static 'vgl/img_games/2525229-box_portal.png' %}" alt="Portal">
+                    <a class="carousel-link" href="{% url 'vgl:game_detail' 17729 %}">
+                        <img class="d-block img-fluid rounded" src="{% static 'vgl/img_games/1027973-gb.png' %}" alt="The Orange Box">
                         <div class="carousel-caption">
-                            <h5>Portal</h5>
+                            <h5>The Orange Box</h5>
                             <p>Most popular game</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="carousel-item h-100">
+                    <a class="carousel-link" href="{% url 'vgl:game_detail' 33394 %}">
+                        <img class="d-block img-fluid rounded" src="{% static 'vgl/img_games/1895988-skyrim.png' %}" alt="The Elder Scrolls V: Skyrim">
+                        <div class="carousel-caption">
+                            <h5>The Elder Scrolls V: Skyrim</h5>
+                            <p>Most popular game of the Role-Playing genre</p>
                         </div>
                     </a>
                 </div>
@@ -48,15 +61,6 @@
                         <div class="carousel-caption">
                             <h5>Golden Sun</h5>
                             <p>Game of the day</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="carousel-item h-100">
-                    <a class="carousel-link" href="{% url 'vgl:game_detail' 1539 %}">
-                        <img class="d-block img-fluid rounded" src="{% static 'vgl/img_games/625502-hl2box.jpg' %}" alt="Half-Life 2">
-                        <div class="carousel-caption">
-                            <h5>Half-Life 2</h5>
-                            <p>Most popular game of the First-Person Shooter genre</p>
                         </div>
                     </a>
                 </div>
