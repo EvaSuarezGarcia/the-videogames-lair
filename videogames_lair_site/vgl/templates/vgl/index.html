@@ -1,0 +1,80 @@
+{% extends "vgl/base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column" style="height: 100vh">
+    {% block navbar %}
+        {% include 'vgl/navbar.html' %}
+    {% endblock navbar %}
+
+    {% block content %}
+        {% load static %}
+        <div id="carousel-wrapper" class="d-flex justify-content-center w-100">
+        <div class="d-none d-lg-flex w-40 my-3 mr-4 align-items-center justify-content-center flex-column">
+            <div class="h-50 w-100 mb-4 p-5 bg-white rounded d-flex align-items-center justify-content-center flex-column">
+                <h3 class="mb-4">Start exploring thousands of games!</h3>
+                <p class="mb-4 text-size-1-25-rem"><span class="arrow down mr-2 border-info"></span>Dive right in<span class="arrow down ml-2 border-info"></span></p>
+                {% include "vgl/navbar_searchbar.html" with big=True %}
+                <p class="mt-4 text-size-1-25-rem">... or take a look at our suggested games <span class="arrow right border-info"></span><span class="arrow right border-info"></span><span class="arrow right border-info"></span></p>
+            </div>
+            <div class="h-50 w-100 p-5 bg-white rounded d-flex align-items-center justify-content-center flex-column">
+                <h3 class="mb-4">Get personalized recommendations!</h3>
+                <div>
+                    {% if request.user.is_authenticated %}
+                    <a href="{% url 'vgl:recommendations' %}" class="btn btn-info btn-lg"><span class="fas fa-gamepad mr-2"></span>Suggestions</a>
+                    {% else %}
+                    <a href="{% url 'vgl:login' %}" class="btn btn-info btn-lg mr-3"><span class="fas fa-sign-in-alt fa-fw mr-2"></span>Login</a>
+                    <a href="{% url 'vgl:signup' %}" class="btn btn-info btn-lg"><span class="fas fa-user-plus fa-fw mr-2"></span>Sign up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div id="carousel" class="carousel slide my-3" data-ride="carousel" data-interval="3000">
+            <ol class="carousel-indicators">
+                <li data-target="#carousel" data-slide-to="0" class="active"></li>
+                <li data-target="#carousel" data-slide-to="1"></li>
+                <li data-target="#carousel" data-slide-to="2"></li>
+            </ol>
+            <div class="carousel-inner h-100">
+                <div class="carousel-item active h-100">
+                    <a class="carousel-link" href="{% url 'vgl:game_detail' 17729 %}">
+                        <img class="d-block img-fluid rounded" src="{% static 'vgl/img_games/1027973-gb.png' %}" alt="The Orange Box">
+                        <div class="carousel-caption">
+                            <h5>The Orange Box</h5>
+                            <p>Most popular game</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="carousel-item h-100">
+                    <a class="carousel-link" href="{% url 'vgl:game_detail' 33394 %}">
+                        <img class="d-block img-fluid rounded" src="{% static 'vgl/img_games/1895988-skyrim.png' %}" alt="The Elder Scrolls V: Skyrim">
+                        <div class="carousel-caption">
+                            <h5>The Elder Scrolls V: Skyrim</h5>
+                            <p>Most popular game of the Role-Playing genre</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="carousel-item h-100">
+                    <a class="carousel-link" href="{% url 'vgl:game_detail' 267 %}">
+                        <img class="d-block img-fluid rounded" src="{% static 'vgl/img_games/2621230-goldensunbox.jpg' %}" alt="Golden Sun">
+                        <div class="carousel-caption">
+                            <h5>Golden Sun</h5>
+                            <p>Game of the day</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#carousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+        </div>
+    {% endblock content %}
+</div>
+{% endblock body %}

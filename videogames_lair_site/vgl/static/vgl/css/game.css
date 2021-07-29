@@ -1,0 +1,11 @@
+figure, img {
+    max-width: 100% !important;
+}
+
+#game-text-overlay {
+    background-image: linear-gradient(to bottom, transparent, white 75%);
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 200px
+}

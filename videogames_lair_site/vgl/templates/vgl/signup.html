@@ -1,0 +1,38 @@
+{% extends "vgl/base.html" %}
+{% load socialaccount %}
+{% load static %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<section class="rounded-lg mx-auto text-center small-section">
+    <h3>Create a new account</h3>
+    <div class="mt-4">
+        <a href="{% provider_login_url 'steam' process='login' %}">
+            <img src="{% static 'vgl/img/steam_login.png' %}" alt="Steam">
+        </a>
+    </div>
+    <div class="separator text-muted w-90 mx-auto mt-3">or</div>
+    <form method="POST" action="{% url "vgl:signup" %}" class="mt-4 mb-3">
+        {% csrf_token %}
+        <div class="form-group row mx-auto col-sm-10 text-left">
+            <label for="username-input" class="col-5 col-form-label">Username</label>
+            <input id="username-input" name="username" type="text" placeholder="Username" class="form-control col-7">
+        </div>
+        <div class="form-group row mx-auto col-sm-10 text-left">
+            <label for="email-input" class="col-5 col-form-label">Email</label>
+            <input id="email-input" name="email" type="email" placeholder="Email" class="form-control col-7">
+        </div>
+        <div class="form-group row mx-auto col-sm-10 text-left">
+            <label for="password1-input" class="col-5 col-form-label">Password</label>
+            <input id="password1-input" name="password1" type="password" placeholder="Password" class="form-control col-7">
+        </div>
+        <div class="form-group row mx-auto col-sm-10 text-left">
+            <label for="password2-input" class="col-5 col-form-label">Repeat Password</label>
+            <input id="password2-input" name="password2" type="password" placeholder="Password (again)" class="form-control col-7">
+        </div>
+        <button type="submit" class="btn btn-info mt-3">Sign Up</button>
+    </form>
+    <small>Already have an account? <a href="{% url 'vgl:login' %}">Log in</a></small>
+</section>
+{% endblock content %}

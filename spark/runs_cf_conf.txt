@@ -1,0 +1,5 @@
+--flagfile=common_conf.txt
+--typeInfo=CF
+// Output folders
+--runsDir=als-runs/cf-runs
+--modelsDir=als-models/cf-models

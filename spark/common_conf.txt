@@ -1,0 +1,14 @@
+--flagfile=private_conf.txt
+--keyspace=videogames_lair
+--userCol=user_id
+--itemCol=game_id
+--ratingCol=rating
+--folds=5
+--seed=7
+--qrelsDir=datasets/steam/qrels
+// Iterations to test
+--iter=10
+// Ranks to test
+--rank=50
+// Regularization parameters to test
+--regParam=0.1

@@ -1,0 +1,274 @@
+body {
+    background-color: rgba(var(--light-purple-rgb), 0.25);
+}
+
+body > section {
+    margin: 1rem 2rem;
+    padding: 0.75rem 1.25rem;
+    background-color: white;
+    width: 90%;
+    max-width: 1000px;
+}
+
+@media (min-width: 576px) {
+    body > section {
+        padding: 1.5rem 2rem;
+    }
+}
+
+@media (min-width: 768px) {
+    body > section {
+        width: 80%;
+        padding: 1.5rem 2.5rem;
+    }
+
+    body > section.small-section {
+        width: 70%;
+    }
+}
+
+@media (min-width: 992px) {
+    body > section.small-section {
+        width: 45%;
+    }
+}
+
+
+/************ Color utilities ************/
+:root {
+    --dark-purple: #56329A;
+    --dark-purple-rgb: 86, 50, 154;
+    --light-purple: #B7A0E0;
+    --light-purple-rgb: 183, 160, 224;
+    --purple-rgb: 111, 66, 193;
+}
+
+.bg-purple {
+    background-color: var(--purple);
+}
+
+.color-purple {
+    color: var(--purple);
+}
+
+/************ Border utilities ************/
+@media (min-width: 768px) {
+    .rounded-md-0 {
+        border-radius: 0 !important;
+    }
+
+    .rounded-md-left {
+        border-top-left-radius: 0.25rem !important;
+        border-bottom-left-radius: 0.25rem !important;
+    }
+
+    .rounded-md {
+        border-radius: 0.25rem !important;
+    }
+
+    .border-top-md-0 {
+        border-top: 0 !important;
+    }
+
+    .border-md-left {
+        border-left: 1px solid #dee2e6!important;
+    }
+}
+
+/************ Cursor utilities *************/
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/************ Display utilities ************/
+@media (min-width: 380px) {
+    .d-380-flex {
+        display: flex !important;
+    }
+
+    .d-380-none {
+        display: none !important;
+    }
+}
+
+/************ Overflow utilities **********/
+@media (min-width: 768px) {
+    .overflow-md-auto {
+        overflow: auto !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .overflow-md-hidden {
+        overflow: hidden !important;
+    }
+}
+
+/************ Padding utilities ***********/
+.px-0-75rem {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+/************ Separator *******************/
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.separator::before, .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid;
+}
+
+.separator:not(:empty)::before {
+    margin-right: .25em;
+}
+
+.separator:not(:empty)::after {
+    margin-left: .25em;
+}
+
+/************ Sizing utilities ************/
+@media (min-width: 768px) {
+    .vh-85-md {
+        height: 85vh;
+    }
+    .w-md-80 {
+        width: 80% !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .w-lg-75 {
+        width: 75% !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .w-xl-50 {
+        width: 50% !important;
+    }
+}
+
+.w-40 {
+    width: 40%;
+}
+
+.w-90 {
+    width: 90%;
+}
+
+/************ Spacing utilities ************/
+@media (min-width: 992px) {
+    .mr-lg-n015rem {
+        margin-right: -0.15rem !important;
+    }
+
+    .w-lg-auto {
+        width: auto !important;
+    }
+}
+
+/************ Text utilities ************/
+.text-size-1-25-rem {
+    font-size: 1.25rem;
+}
+
+@media (min-width: 576px) {
+    .text-size-sm-1-5-rem {
+        font-size: 1.5rem !important;
+    }
+}
+
+.line-height-inherit {
+    line-height: inherit;
+}
+
+.font-weight-inherit {
+    font-weight: inherit;
+}
+
+.font-size-inherit {
+    font-size: inherit;
+}
+
+/*********** Carousel *******************/
+#carousel-wrapper {
+    flex: 1 1 auto;
+    height: 100vh
+}
+
+#carousel {
+    width: 80%;
+}
+
+@media (min-width: 576px) {
+    #carousel {
+        width: 70%;
+    }
+}
+
+@media (min-width: 768px) {
+    #carousel {
+        width: 60%;
+    }
+}
+
+@media (min-width: 992px) {
+    #carousel {
+        width: 50%;
+    }
+}
+
+@media (min-width: 1200px) {
+    #carousel {
+        width: 40%;
+    }
+}
+
+#carousel .carousel-item {
+    background-color: white;
+}
+
+#carousel .carousel-link {
+    width: 100%;
+    height: inherit;
+}
+
+#carousel img {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: inherit;
+    width: 100%;
+}
+
+#carousel .carousel-caption {
+    width: 100%;
+    left: 0;
+    background-color: rgba(1, 1, 1, 0.5);
+}
+
+/***** Arrows *****/
+.arrow {
+    border: solid black;
+    border-width: 0 4px 4px 0;
+    display: inline-block;
+    padding: 4px;
+}
+
+.arrow.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+
+.arrow.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}

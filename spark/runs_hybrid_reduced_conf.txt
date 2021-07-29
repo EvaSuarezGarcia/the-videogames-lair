@@ -1,0 +1,6 @@
+--flagfile=common_conf.txt
+--metadataTables=game_genres,game_themes,game_concepts
+--typeInfo=hybrid-reduced
+// Output folders
+--runsDir=als-runs/hybrid-reduced
+--modelsDir=als-models/hybrid-reduced
